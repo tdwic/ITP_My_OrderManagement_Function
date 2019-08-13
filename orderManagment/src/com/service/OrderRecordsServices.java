@@ -2,7 +2,10 @@ package com.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 import com.model.*;
 import com.util.DbConnect;
@@ -63,6 +66,54 @@ public class OrderRecordsServices {
 	
 	public void removeOrder(String orderID) {
 		
+	}
+	
+	
+	public void productIDview(String object) {
+		String productID ;
+		try {
+			String OrderID_query = "select p.productID From unic.product p Where productName = '"+object+"'";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(OrderID_query);
+			System.out.println(preStatement);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//return productID;
+	}
+	
+	
+	public ArrayList<String> getOrderID(){
+		ArrayList<String> orderID_List = new ArrayList<String>();
+		
+		try {
+			String OrderID_query = "select 0.orderID from order as o";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(OrderID_query);
+			ResultSet orderIDs = preStatement.executeQuery();
+			
+			while (orderIDs.next()) {
+				orderID_List.add(orderIDs.getString(1));	
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			try {
+				if (preStatement != null) {
+					preStatement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			}catch(SQLException e) {
+				
+			}
+		}
+		
+		return orderID_List;
+		
+	
 	}
 	
 	

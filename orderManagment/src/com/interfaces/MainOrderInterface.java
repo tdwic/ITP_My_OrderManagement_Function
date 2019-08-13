@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JComboBox;
 import com.util.DbConnect;
+import com.util.ID_Generator;
 
 import net.proteanit.sql.DbUtils;
 
@@ -39,6 +40,12 @@ import java.awt.event.MouseEvent;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import javax.swing.JSplitPane;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.event.InputMethodListener;
+import java.awt.event.InputMethodEvent;
 
 
 public class MainOrderInterface {
@@ -66,6 +73,9 @@ public class MainOrderInterface {
 	private JTable table;
 	private JTextField textField;
 	
+	private JComboBox cmbProductType;
+	private JComboBox comboBox_2;
+	
 	//Object Declaration
 	
 	Client client = new Client();
@@ -73,9 +83,27 @@ public class MainOrderInterface {
 	ClientRecordsServices clientRecordsServices = new ClientRecordsServices();
 	OrderRecordsServices orderRecordsServices = new OrderRecordsServices();
 	JDateChooser orderDate = new JDateChooser();
+	ID_Generator id_Generator = new ID_Generator();
 	
 	//Object Declaration
 	
+	
+	public void produtTypeFill() {
+		try {
+			String selectClient = "select * from product";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectClient);
+			ResultSet productSet = preStatement.executeQuery();
+			
+			while (productSet.next()) {
+				cmbProductType.addItem(productSet.getString("productName"));
+				comboBox_2.addItem(productSet.getString("productName"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 	
 	private void viewAllOrders() {
 		try {
@@ -193,7 +221,7 @@ public class MainOrderInterface {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				try {
+				try {					
 					MainOrderInterface window = new MainOrderInterface();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
@@ -208,6 +236,11 @@ public class MainOrderInterface {
 	 */
 	public MainOrderInterface() {
 		initialize();
+		clientID.setText(id_Generator.clientID_Generator(clientRecordsServices.getClientID()));
+		txtOrderID.setText(id_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
+		
+		produtTypeFill();
+		
 	}
 
 	/**
@@ -413,7 +446,7 @@ public class MainOrderInterface {
 		cmbSuperID.setBounds(550, 209, 209, 20);
 		frame.getContentPane().add(cmbSuperID);
 		
-		JComboBox comboBox_2 = new JComboBox();
+		comboBox_2 = new JComboBox();
 		comboBox_2.setEditable(true);
 		comboBox_2.setBounds(143, 8, 101, 22);
 		frame.getContentPane().add(comboBox_2);
@@ -586,7 +619,23 @@ public class MainOrderInterface {
 		table = new JTable();
 		scrollPane.setViewportView(table);
 		
-		JComboBox cmbProductType = new JComboBox();
+		cmbProductType = new JComboBox();
+		cmbProductType.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					orderRecordsServices.productIDview(e.getItem().toString());
+			          
+			        }
+				
+			}
+		});
+		
+	
+		
+
+		
+		
 		cmbProductType.setBounds(550, 83, 137, 20);
 		frame.getContentPane().add(cmbProductType);
 		

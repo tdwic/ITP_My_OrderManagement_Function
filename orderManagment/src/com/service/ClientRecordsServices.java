@@ -4,7 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
+
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 import com.interfaces.MainOrderInterface;
 import com.model.Client;
@@ -158,6 +162,44 @@ public class ClientRecordsServices {
 		}
 				
 	}
+	
+	
+	public ArrayList<String> getClientID(){
+		ArrayList<String> clientID_List = new ArrayList<String>();
+		
+		try {
+			String clientID_query = "select c.clientID from customer as c";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(clientID_query);
+			ResultSet clientIDs = preStatement.executeQuery();
+			
+			while (clientIDs.next()) {
+				clientID_List.add(clientIDs.getString(1));	
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			try {
+				if (preStatement != null) {
+					preStatement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			}catch(SQLException e) {
+				
+			}
+		}
+		
+		return clientID_List;
+		
+	
+	}
+	
+	
+	
+	
 		
 	
 }
