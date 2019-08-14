@@ -13,7 +13,7 @@ public class DbConnect {
 		String dbURL = "jdbc:mysql://localhost:3306/unic" ;
 		String dbDriver = "com.mysql.jdbc.Driver";
 		String dbUsername = "root" ;
-		String dbPassword = "tharindu123";
+		String dbPassword = "tharindu";
 		
 		Class.forName(dbDriver).newInstance();
 		connection = DriverManager.getConnection(dbURL,dbUsername , dbPassword);

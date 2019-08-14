@@ -8,6 +8,7 @@ import com.service.*;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -46,11 +47,13 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
+import javax.swing.ScrollPaneConstants;
 
 
 public class MainOrderInterface {
 	
-	private int refreshValue;	
+	private int refreshValue;
+	private String role = "SUP";
 	private static Connection connection ;
 	private static Statement statement ;
 	private PreparedStatement preStatement ;
@@ -71,10 +74,13 @@ public class MainOrderInterface {
 	private JTextField Location;
 	private JTextField Remark;
 	private JTable table;
-	private JTextField textField;
+	private JTextField productID;
 	
 	private JComboBox cmbProductType;
 	private JComboBox comboBox_2;
+	private JComboBox cmbSuperID;
+	private JComboBox cmbColor;
+	private JComboBox cmpTransport;
 	
 	//Object Declaration
 	
@@ -84,15 +90,16 @@ public class MainOrderInterface {
 	OrderRecordsServices orderRecordsServices = new OrderRecordsServices();
 	JDateChooser orderDate = new JDateChooser();
 	ID_Generator id_Generator = new ID_Generator();
+	private JTextField supervicerID;
 	
 	//Object Declaration
 	
 	
 	public void produtTypeFill() {
 		try {
-			String selectClient = "select * from product";
+			String selectProductName= "select distinct productName from unic.product";
 			connection = DbConnect.getDBConnection();
-			preStatement = connection.prepareStatement(selectClient);
+			preStatement = connection.prepareStatement(selectProductName);
 			ResultSet productSet = preStatement.executeQuery();
 			
 			while (productSet.next()) {
@@ -104,6 +111,62 @@ public class MainOrderInterface {
 			// TODO: handle exception
 		}
 	}
+	
+	
+	public void produtColorFill() {
+		try {
+			String selectColour = "select distinct colour from unic.product";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectColour);
+			ResultSet colourSet = preStatement.executeQuery();
+			
+			while (colourSet.next()) {
+				cmbColor.addItem(colourSet.getString("colour"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+
+	public void productIDview(String nameProduct) {
+		String proName = nameProduct;
+		
+		try {
+			String OrderID_query = "select * From unic.product p Where productName = '"+proName+"'";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(OrderID_query);
+			ResultSet resultSet = preStatement.executeQuery();
+			while (resultSet.next()) {
+				productID.setText(resultSet.getString("productID"));
+				cmbColor.setSelectedItem(resultSet.getString("colour"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+				
+	}
+	
+	public void superviceNameID(String role) {
+		String superRole = role;
+		
+		try {
+			String selectSupervicer = "SELECT DISTINCT FName,LName FROM user_main WHERE Role = '"+superRole+"'";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectSupervicer);
+			ResultSet productSet = preStatement.executeQuery();
+			
+			while (productSet.next()) {
+				cmbSuperID.addItem(productSet.getString("FName")+" "+productSet.getString("LName"));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
 	
 	private void viewAllOrders() {
 		try {
@@ -117,13 +180,57 @@ public class MainOrderInterface {
 		}
 	}
 	
-	public void viewAllClients() {
+	private void viewAllClients() {
 		try {
 			String selectClient = "select * from customer";
 			connection = DbConnect.getDBConnection();
 			preStatement = connection.prepareStatement(selectClient);
 			ResultSet resultSet = preStatement.executeQuery();
 			table.setModel(DbUtils.resultSetToTableModel(resultSet));
+		} catch (Exception e) {
+			
+		}
+	}
+	
+	
+	private void viewAllSupervicers(String supervicerName) {
+		String superName = supervicerName;
+		
+		try {
+			String selectClient = "SELECT EID,CONCAT(FName,' ', LName) AS Full_Name,NICNo,Role FROM (SELECT EID,FName,LName,NICNo,Role, CONCAT(FName,' ', LName) AS fullName FROM unic.user_main) result WHERE result.fullName = '"+superName+"'";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectClient);
+			ResultSet resultSet = preStatement.executeQuery();
+			table.setModel(DbUtils.resultSetToTableModel(resultSet));
+			int cnt = table.getRowCount();
+			if (cnt >= 2) {
+				JOptionPane.showMessageDialog(null, "select one");
+			} else {
+				table.setModel(new DefaultTableModel());
+			}
+			
+		} catch (Exception e) {
+			
+		}
+	}
+	
+	
+	private void viewAllProducts(String productName) {
+		String nameProduct = productName;
+		
+		try {
+			String selectClient = "select * from product where productName = '"+nameProduct+"'";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectClient);
+			ResultSet resultSet = preStatement.executeQuery();
+			table.setModel(DbUtils.resultSetToTableModel(resultSet));
+			int cnt = table.getRowCount();
+			if (cnt >= 2) {
+				JOptionPane.showMessageDialog(null, "select one");
+			} else {
+				table.setModel(new DefaultTableModel());
+			}
+			
 		} catch (Exception e) {
 			
 		}
@@ -195,6 +302,22 @@ public class MainOrderInterface {
 		    address.setText(table.getValueAt(rowNumber, 7).toString());
 	}
 	
+	private void allProductItems() {
+		JOptionPane.showMessageDialog(null, "Product Only");
+		int rowNumber = table.getSelectedRow();
+		cmbProductType.setSelectedItem(table.getValueAt(rowNumber, 1).toString());
+		productID.setText(table.getValueAt(rowNumber, 0).toString());
+		cmbColor.setSelectedItem(table.getValueAt(rowNumber, 4).toString());
+	}
+	
+	
+	private void supervicerID() {
+		JOptionPane.showMessageDialog(null, "Supervicer Only");
+		int rowNumber = table.getSelectedRow();
+		supervicerID.setText(table.getValueAt(rowNumber, 0).toString());
+	
+	}
+	
 	
 	
 	
@@ -239,7 +362,30 @@ public class MainOrderInterface {
 		clientID.setText(id_Generator.clientID_Generator(clientRecordsServices.getClientID()));
 		txtOrderID.setText(id_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
 		
+		supervicerID = new JTextField();
+		supervicerID.setEditable(false);
+		supervicerID.setBounds(697, 208, 62, 20);
+		frame.getContentPane().add(supervicerID);
+		supervicerID.setColumns(10);
+		
+		JButton btnNewButton_7 = new JButton("Clear");
+		btnNewButton_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		btnNewButton_7.setBounds(246, 376, 113, 24);
+		frame.getContentPane().add(btnNewButton_7);
+		
+		JButton btnNewButton_8 = new JButton("Clear");
+		btnNewButton_8.setBounds(646, 376, 113, 24);
+		frame.getContentPane().add(btnNewButton_8);
+		
 		produtTypeFill();
+		produtColorFill();
+		superviceNameID(role);
+		
+		table.setModel(new DefaultTableModel());
+
 		
 	}
 
@@ -247,8 +393,9 @@ public class MainOrderInterface {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+	
 		frame = new JFrame();
-		frame.setBounds(100, 100, 786, 622);
+		frame.setBounds(100, 100, 785, 622);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -413,20 +560,20 @@ public class MainOrderInterface {
 		JButton btnNewButton_2 = new JButton("Place Order");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refreshValue = 6;
+				refreshValue = 8;
 				textSetClient();
 				clientRecordsServices.addClient(client);
 				orderRecordsServices.addOrder(order, client);
 			}
 		});
 		btnNewButton_2.setBackground(Color.GREEN);
-		btnNewButton_2.setBounds(417, 376, 342, 23);
+		btnNewButton_2.setBounds(417, 376, 228, 23);
 		frame.getContentPane().add(btnNewButton_2);
 		
 		JButton btnNewButton_3 = new JButton("Update Order");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refreshValue = 7;
+				refreshValue = 9;
 			}
 		});
 		btnNewButton_3.setBounds(417, 344, 113, 23);
@@ -435,15 +582,28 @@ public class MainOrderInterface {
 		JButton btnNewButton_4 = new JButton("Search Order");
 		btnNewButton_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				refreshValue = 8;
+				refreshValue = 10;
 				System.out.println(orderDate.getDate());
 			}
 		});
 		btnNewButton_4.setBounds(532, 344, 113, 23);
 		frame.getContentPane().add(btnNewButton_4);
 		
-		JComboBox cmbSuperID = new JComboBox();
-		cmbSuperID.setBounds(550, 209, 209, 20);
+		cmbSuperID = new JComboBox();
+		cmbSuperID.addItem("Please Select");
+		cmbSuperID.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				if (arg0.getStateChange() == ItemEvent.SELECTED) {
+					refreshValue = 7;
+					viewAllSupervicers(arg0.getItem().toString());
+					String supervicerIDresult;
+					supervicerIDresult = orderRecordsServices.superviceIDView(arg0.getItem().toString());
+					supervicerID.setText(supervicerIDresult); 
+			    }
+				
+			}
+		});
+		cmbSuperID.setBounds(550, 209, 137, 20);
 		frame.getContentPane().add(cmbSuperID);
 		
 		comboBox_2 = new JComboBox();
@@ -515,9 +675,11 @@ public class MainOrderInterface {
 		lblTransportType.setBounds(417, 235, 113, 14);
 		frame.getContentPane().add(lblTransportType);
 		
-		JComboBox cmpTransport = new JComboBox();
+		cmpTransport = new JComboBox();
 		cmpTransport.setBounds(550, 233, 209, 20);
 		frame.getContentPane().add(cmpTransport);
+		cmpTransport.addItem("Company");
+		cmpTransport.addItem("Private");
 		
 		JLabel lblRemark = new JLabel("Location");
 		lblRemark.setFont(new Font("Tahoma", Font.BOLD, 13));
@@ -539,7 +701,7 @@ public class MainOrderInterface {
 
 			}
 		});
-		btnNewButton.setBounds(10, 376, 349, 23);
+		btnNewButton.setBounds(10, 376, 232, 23);
 		frame.getContentPane().add(btnNewButton);
 		
 		JButton btnViewAllOrders = new JButton("All Orders");
@@ -555,13 +717,20 @@ public class MainOrderInterface {
 		JButton btnRefresh = new JButton("Refresh");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (refreshValue > 5) {
+				if (refreshValue > 7) {
 					JOptionPane.showMessageDialog(null, "Order Refresh");
 					
 				} else if(refreshValue == 5) {
 					JOptionPane.showMessageDialog(null, "Both refresh");
-				}else {
+				} else if(refreshValue == 6) {
+					JOptionPane.showMessageDialog(null, "Product Item Refresh");
+					viewAllProducts(cmbProductType.getSelectedItem().toString());
+				} else if(refreshValue == 7) {
+					JOptionPane.showMessageDialog(null, "Supervicer Refresh");
+					viewAllSupervicers(cmbSuperID.getSelectedItem().toString());
+				} else {
 					JOptionPane.showMessageDialog(null, "Client refresh");
+					viewAllClients();
 				}
 			}
 		});
@@ -583,7 +752,7 @@ public class MainOrderInterface {
 		JButton btnNewButton_5 = new JButton("Remove Order");
 		btnNewButton_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refreshValue = 9;
+				refreshValue = 11;
 			}
 		});
 		btnNewButton_5.setBounds(646, 344, 113, 23);
@@ -604,8 +773,9 @@ public class MainOrderInterface {
 		lblColor.setBounds(417, 260, 113, 14);
 		frame.getContentPane().add(lblColor);
 		
-		JComboBox cmbColor = new JComboBox();
+		cmbColor = new JComboBox();
 		cmbColor.setBounds(550, 258, 209, 20);
+		cmbColor.addItem("Please Select");
 		frame.getContentPane().add(cmbColor);
 		
 		JButton btnNewButton_6 = new JButton("Report Generate");
@@ -613,6 +783,9 @@ public class MainOrderInterface {
 		frame.getContentPane().add(btnNewButton_6);
 		
 		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setEnabled(false);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane.setBounds(10, 411, 626, 161);
 		frame.getContentPane().add(scrollPane);
 		
@@ -620,38 +793,40 @@ public class MainOrderInterface {
 		scrollPane.setViewportView(table);
 		
 		cmbProductType = new JComboBox();
+		cmbProductType.addItem("Please Select");
+		cmbProductType.setToolTipText("Select Product Name");
 		cmbProductType.addItemListener(new ItemListener() {
+	
 			public void itemStateChanged(ItemEvent e) {
-				
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					orderRecordsServices.productIDview(e.getItem().toString());
-			          
-			        }
-				
+					viewAllProducts(e.getItem().toString());
+					refreshValue = 6;
+					productIDview(e.getItem().toString());
+			    }
 			}
 		});
-		
-	
-		
 
-		
-		
 		cmbProductType.setBounds(550, 83, 137, 20);
 		frame.getContentPane().add(cmbProductType);
 		
-		textField = new JTextField();
-		textField.setBounds(697, 81, 62, 22);
-		frame.getContentPane().add(textField);
-		textField.setColumns(10);
+		productID = new JTextField();
+		productID.setEditable(false);
+		productID.setBounds(697, 81, 62, 22);
+		frame.getContentPane().add(productID);
+		productID.setColumns(10);
 		frame.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{comboBox_2, textField_8, frame.getContentPane(), emailAddress, label, label_1, contactNumber, nicNo, label_2, label_3, companyName, lastName, label_4, label_5, firstName, clientID, label_6, address, btnQuichSearch, lblAddress, btnNewButton_1, btnSearchClient, txtOrderID, lblOrderId, lblOrderType, lblOrderDate, lblDayOfNeed, lblDayOfComplete, lblSuperviserId, btnNewButton_2, btnNewButton_3, btnNewButton_4, cmbSuperID, lblProductType, orderDate, orderDate.getCalendarButton(), dayOfNeed, dayOfNeed.getCalendarButton(), dayOfComplete, dayOfComplete.getCalendarButton(), lblAmount, lblAmount_1, quantity1, lblAvailability, lblTransportType, cmpTransport, lblRemark, Location, btnNewButton, btnViewAllOrders, btnRefresh, btnRemoveClient, btnNewButton_5, Remark, label_7, lblColor, cmbColor, btnNewButton_6}));
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (refreshValue > 5) {
+				if (refreshValue > 7) {
 					tableSelectItemOrder();
 					
 				} else if(refreshValue == 5) {
 					allOrderItems();
+				}else if(refreshValue == 6) {
+					allProductItems();
+				} else if(refreshValue == 7) {
+					supervicerID();
 				}else {
 					tableSelectItemClient();
 				}

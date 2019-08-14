@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.print.attribute.standard.RequestingUserName;
 import javax.swing.JOptionPane;
 import com.model.*;
 import com.util.DbConnect;
@@ -69,17 +70,24 @@ public class OrderRecordsServices {
 	}
 	
 	
-	public void productIDview(String object) {
-		String productID ;
+	
+	
+	public String superviceIDView(String supervicerName) {
+		String supervicerID = null ;
 		try {
-			String OrderID_query = "select p.productID From unic.product p Where productName = '"+object+"'";
+			String SupervicerID_query = "SELECT EID FROM (SELECT EID, CONCAT(FName,' ', LName) AS fullName FROM unic.user_main) result WHERE result.fullName = '"+supervicerName+"'";
 			connection = DbConnect.getDBConnection();
-			preStatement = connection.prepareStatement(OrderID_query);
-			System.out.println(preStatement);
+			preStatement = connection.prepareStatement(SupervicerID_query);
+			ResultSet supervicerResult = preStatement.executeQuery();
+			while (supervicerResult.next()) {
+				supervicerID = supervicerResult.getString("EID");	
+			}
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
 		//return productID;
+		return supervicerID;
 	}
 	
 	
@@ -112,9 +120,6 @@ public class OrderRecordsServices {
 		}
 		
 		return orderID_List;
-		
-	
 	}
-	
-	
+
 }
