@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.xml.ws.AsyncHandler;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -52,17 +53,13 @@ import java.beans.PropertyChangeEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
 import javax.swing.ScrollPaneConstants;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
 public class MainOrderInterface {
-	
-	
-	
-	private int refreshValue;
-	private String role = "SUP";
-	private static Connection connection ;
-	private static Statement statement ;
-	private PreparedStatement preStatement ;
+
+	//Interface Items Objects
 	
 	private JFrame frame;
 	private JTextField emailAddress;
@@ -83,15 +80,33 @@ public class MainOrderInterface {
 	private JTextField productID;
 	private JTable table;
 	
-	private JDateChooser dayOfNeed;
-	private JDateChooser orderDate;
-	private JDateChooser dayOfComplete;
-	
 	private JComboBox cmbProductType;
 	private JComboBox comboBox_2;
 	private JComboBox cmbSuperID;
 	private JComboBox cmbColor;
 	private JComboBox cmpTransport;
+	
+	private JDateChooser dayOfNeed;
+	private JDateChooser orderDate;
+	private JDateChooser dayOfComplete;
+	
+	
+	
+	//Interface Items Objects
+	
+	
+	//Other Common variables
+	
+	private int warnin_message_button = JOptionPane.YES_NO_OPTION;
+	private int warning_message_result;
+	private int refreshValue;
+	private String role = "SUP";
+	private static Connection connection ;
+	private static Statement statement ;
+	private PreparedStatement preStatement ;
+	
+	//Other Common variables
+	
 	
 	//Object Declaration
 	
@@ -259,24 +274,7 @@ public class MainOrderInterface {
 		client.setEmailAddress(emailAddress.getText());
 		client.setClientAddress(address.getText());
 	}
-	
-	
-	
-	/*	preStatement.setString(1, order.getOrderID());
-			preStatement.setString(2, client.getClientId());
-			preStatement.setString(3, order.getProductType());
-			preStatement.setString(4, order.getOrderDate());
-			preStatement.setString(5, order.getDayOfNeed());
-			preStatement.setString(6, order.getDayOfComplete());
-			preStatement.setString(7, order.getQuantity());
-			preStatement.setString(8, order.getSuperviserID());
-			preStatement.setString(9, order.getTransportType());
-			preStatement.setString(10, order.getLocation());
-			preStatement.setString(11, order.getRemark());*/
-	
-	
-	
-	
+
 	private void textSetOrder() {
 		order.setOrderID(txtOrderID.getText());
 		order.setProductType(productID.getText());
@@ -348,7 +346,9 @@ public class MainOrderInterface {
 	
 	}
 	
-	
+	private Boolean IsClientCheckEmpty() {
+		return ((clientID.getText().length()==0 || firstName.getText().length()==0) || lastName.getText().length()==0 );
+	}
 	
 	
 	/**
@@ -471,6 +471,16 @@ public class MainOrderInterface {
 		frame.getContentPane().add(companyName);
 		
 		lastName = new JTextField();
+		lastName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (lastName.getText().equals("") != true) {
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("LName",lastName.getText())));
+				} else {
+					table.setModel(new DefaultTableModel());
+				}
+			}
+		});
 		lastName.setColumns(10);
 		lastName.setBounds(143, 108, 216, 20);
 		frame.getContentPane().add(lastName);
@@ -486,11 +496,34 @@ public class MainOrderInterface {
 		frame.getContentPane().add(label_5);
 		
 		firstName = new JTextField();
+		firstName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (firstName.getText().equals("") != true) {
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("FName",firstName.getText())));
+				} else {
+					table.setModel(new DefaultTableModel());
+				}
+				
+				
+			}
+		});
 		firstName.setColumns(10);
 		firstName.setBounds(143, 83, 216, 20);
 		frame.getContentPane().add(firstName);
 		
 		clientID = new JTextField();
+		clientID.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				String text = clientID.getText();
+				if(clientID.getText().equals("") != true) {
+				table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("clientID",clientID.getText())));
+				} else {
+					table.setModel(new DefaultTableModel());
+				}
+			}
+		});
 		clientID.setColumns(10);
 		clientID.setBounds(143, 58, 216, 20);
 		frame.getContentPane().add(clientID);
@@ -526,17 +559,25 @@ public class MainOrderInterface {
 		JButton btnSearchClient = new JButton("Search Client");
 		btnSearchClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				
 				if (clientID.getText().equals("") && firstName.getText().equals("") && lastName.getText().equals("")) {
 					JOptionPane.showMessageDialog(null, "Please Enter 'ClientID','First Name' or 'Last Name' to proceed the search...");
+					
 				} else if (firstName.getText().equals("") && lastName.getText().equals("")) {
+					
 					JOptionPane.showMessageDialog(null, "Client ID onlly");
-					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchByID(clientID.getText())));
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("clientID",clientID.getText())));
+					
 				} else if (clientID.getText().equals("") && lastName.getText().equals("")) {
+					
 					JOptionPane.showMessageDialog(null, "First Name Only");
-					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchByFName(firstName.getText())));
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("FName",firstName.getText())));
+					
 				} else if (clientID.getText().equals("") && firstName.getText().equals("")) {
+					
 					JOptionPane.showMessageDialog(null, "Last Name Only");
-					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchByLName(lastName.getText())));
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("LName",lastName.getText())));
+					
 				} else {
 					JOptionPane.showMessageDialog(null, "Use Only One Field to search");
 					clientID.setText("");
@@ -770,9 +811,19 @@ public class MainOrderInterface {
 		JButton btnRemoveClient = new JButton("Remove Client");
 		btnRemoveClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refreshValue = 4;
-				clientRecordsServices.removeCLient(clientID.getText());
-				viewAllClients();
+	System.out.println(IsClientCheckEmpty());
+				if (IsClientCheckEmpty() != false) {
+					JOptionPane.showMessageDialog(null, "Please Search Select your Client Details to Verify Before Done This Process, Because This Process Can't be Undone..");
+				} else {
+					warning_message_result = JOptionPane.showConfirmDialog (null, "Do you want to remove this Client..","Warning",warnin_message_button);
+					if(warning_message_result == JOptionPane.YES_OPTION){
+						refreshValue = 4;
+						clientRecordsServices.removeCLient(clientID.getText());
+						viewAllClients();
+					}
+					
+				}
+				
 			}
 
 		});

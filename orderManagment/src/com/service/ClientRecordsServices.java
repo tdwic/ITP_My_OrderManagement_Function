@@ -123,36 +123,10 @@ public class ClientRecordsServices {
 		}
 		
 	}
-	
-	public ResultSet searchByID(String clientID) {
+
+	public ResultSet searchAndSort(String colom_name,String inputFieldName) {
 		try {
-			String selectClient = "SELECT clientID,FName,LName,companyName,NICNo,ContactNo,Email,Address FROM unic.customer where clientID = '"+clientID+"';";
-			connection = DbConnect.getDBConnection();
-			preStatement = connection.prepareStatement(selectClient);
-			ResultSet resultSet = preStatement.executeQuery();
-			return resultSet;
-		} catch (Exception e) {
-			return null;
-		}
-				
-	}
-	
-	public ResultSet searchByFName(String firstName) {
-		try {
-			String selectClient = "SELECT clientID,FName,LName,companyName,NICNo,ContactNo,Email,Address FROM unic.customer where FName = '"+firstName+"';";
-			connection = DbConnect.getDBConnection();
-			preStatement = connection.prepareStatement(selectClient);
-			ResultSet resultSet = preStatement.executeQuery();
-			return resultSet;
-		} catch (Exception e) {
-			return null;
-		}
-				
-	}
-	
-	public ResultSet searchByLName(String lastName) {
-		try {
-			String selectClient = "SELECT clientID,FName,LName,companyName,NICNo,ContactNo,Email,Address FROM unic.customer where LName = '"+lastName+"';";
+			String selectClient = "SELECT * FROM unic.customer where "+colom_name+" like '"+"%"+inputFieldName+"%"+"'";
 			connection = DbConnect.getDBConnection();
 			preStatement = connection.prepareStatement(selectClient);
 			ResultSet resultSet = preStatement.executeQuery();
