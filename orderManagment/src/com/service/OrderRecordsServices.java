@@ -23,21 +23,24 @@ public class OrderRecordsServices {
 	public void addOrder(Order order, Client client) {
 		try {
 			connection = DbConnect.getDBConnection();
-			String addClient ="insert into orders (clientID, orderID, productType, orderDate, dayOfNeed, quantity, superviserID, color, transportType, location, remark) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+			String addClient ="insert into unic.order (orderID, clientID, productID, orderDate, dayOfNeed, dayOfComplete, quantity, superviser, transportType, location, remarks) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+			//String addClient ="insert into orders (clientID, orderID, productType, orderDate, dayOfNeed, quantity, superviserID, color, transportType, location, remark) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
 			
 			preStatement = connection.prepareStatement(addClient);
-			
-			preStatement.setString(1, client.getClientId());
-			preStatement.setString(2, order.getOrderID());
+			System.out.println(order.getOrderDate());
+			preStatement.setString(1, order.getOrderID());
+			preStatement.setString(2, client.getClientId());
 			preStatement.setString(3, order.getProductType());
 			preStatement.setString(4, order.getOrderDate());
 			preStatement.setString(5, order.getDayOfNeed());
-			preStatement.setString(6, order.getQuantity());
-			preStatement.setString(7, order.getSuperviserID());
-			preStatement.setString(8, order.getColor());
+			preStatement.setString(6, order.getDayOfComplete());
+			preStatement.setString(7, order.getQuantity());
+			preStatement.setString(8, order.getSuperviserID());
 			preStatement.setString(9, order.getTransportType());
 			preStatement.setString(10, order.getLocation());
 			preStatement.setString(11, order.getRemark());
+			
+			System.out.println(preStatement);
 			
 			preStatement.executeUpdate() ;
 			JOptionPane.showMessageDialog(null, "Order Inserted Sucessfully....");
@@ -95,7 +98,7 @@ public class OrderRecordsServices {
 		ArrayList<String> orderID_List = new ArrayList<String>();
 		
 		try {
-			String OrderID_query = "select 0.orderID from order as o";
+			String OrderID_query = "select orderID from unic.order";
 			connection = DbConnect.getDBConnection();
 			preStatement = connection.prepareStatement(OrderID_query);
 			ResultSet orderIDs = preStatement.executeQuery();

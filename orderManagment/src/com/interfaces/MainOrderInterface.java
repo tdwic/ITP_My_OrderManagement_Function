@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 
 import java.awt.Color;
 import javax.swing.JTable;
+import javax.lang.model.util.SimpleAnnotationValueVisitor6;
+import javax.management.loading.PrivateClassLoader;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -23,6 +25,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
 import java.time.Month;
 import java.time.Year;
@@ -52,6 +56,8 @@ import javax.swing.ScrollPaneConstants;
 
 public class MainOrderInterface {
 	
+	
+	
 	private int refreshValue;
 	private String role = "SUP";
 	private static Connection connection ;
@@ -73,8 +79,13 @@ public class MainOrderInterface {
 	private JTextField textField_11;
 	private JTextField Location;
 	private JTextField Remark;
-	private JTable table;
+	private JTextField supervicerID;
 	private JTextField productID;
+	private JTable table;
+	
+	private JDateChooser dayOfNeed;
+	private JDateChooser orderDate;
+	private JDateChooser dayOfComplete;
 	
 	private JComboBox cmbProductType;
 	private JComboBox comboBox_2;
@@ -88,9 +99,9 @@ public class MainOrderInterface {
 	Order order = new Order();
 	ClientRecordsServices clientRecordsServices = new ClientRecordsServices();
 	OrderRecordsServices orderRecordsServices = new OrderRecordsServices();
-	JDateChooser orderDate = new JDateChooser();
 	ID_Generator id_Generator = new ID_Generator();
-	private JTextField supervicerID;
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
 	
 	//Object Declaration
 	
@@ -249,15 +260,34 @@ public class MainOrderInterface {
 		client.setClientAddress(address.getText());
 	}
 	
+	
+	
+	/*	preStatement.setString(1, order.getOrderID());
+			preStatement.setString(2, client.getClientId());
+			preStatement.setString(3, order.getProductType());
+			preStatement.setString(4, order.getOrderDate());
+			preStatement.setString(5, order.getDayOfNeed());
+			preStatement.setString(6, order.getDayOfComplete());
+			preStatement.setString(7, order.getQuantity());
+			preStatement.setString(8, order.getSuperviserID());
+			preStatement.setString(9, order.getTransportType());
+			preStatement.setString(10, order.getLocation());
+			preStatement.setString(11, order.getRemark());*/
+	
+	
+	
+	
 	private void textSetOrder() {
-		JComboBox comboBox = null;
-		Object orderDate = null;
-		
 		order.setOrderID(txtOrderID.getText());
-		order.setProductType(comboBox.getSelectedItem().toString());
-		
-		order.setOrderDate(orderDate.toString());
-		
+		order.setProductType(productID.getText());
+		order.setOrderDate(dateFormat.format(orderDate.getDate()));
+		order.setDayOfNeed(dateFormat.format(dayOfNeed.getDate()));
+		order.setDayOfComplete(dateFormat.format(dayOfComplete.getDate()));
+		order.setQuantity(quantity1.getText());
+		order.setSuperviserID(supervicerID.getText());
+		order.setTransportType(cmpTransport.getSelectedItem().toString());
+		order.setLocation(Location.getText());
+		order.setRemark(Remark.getText());
 	}
 	
 	
@@ -562,6 +592,7 @@ public class MainOrderInterface {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 8;
 				textSetClient();
+				textSetOrder();
 				clientRecordsServices.addClient(client);
 				orderRecordsServices.addOrder(order, client);
 			}
@@ -615,25 +646,24 @@ public class MainOrderInterface {
 		lblProductType.setFont(new Font("Tahoma", Font.BOLD, 13));
 		lblProductType.setBounds(10, 11, 86, 14);
 		frame.getContentPane().add(lblProductType);
-		orderDate.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				JOptionPane.showMessageDialog(null, "Hiii");
-			}
-		});
-		orderDate.setDateFormatString("MM ,DD,YY");
-		
-		
+	
+		orderDate = new JDateChooser();
 		orderDate.setBounds(550, 108, 209, 20);
+		orderDate.setDateFormatString("yyyy-MM-dd");
 		frame.getContentPane().add(orderDate);
 		
-		JDateChooser dayOfNeed = new JDateChooser();
+		
+		dayOfNeed = new JDateChooser();
 		dayOfNeed.setBounds(550, 133, 209, 20);
+		dayOfNeed.setDateFormatString("yyyy-MM-dd");
 		frame.getContentPane().add(dayOfNeed);
 		
-		JDateChooser dayOfComplete = new JDateChooser();
+		
+		dayOfComplete = new JDateChooser();
 		dayOfComplete.setBounds(550, 158, 209, 20);
+		dayOfComplete.setDateFormatString("yyyy-MM-dd");
 		frame.getContentPane().add(dayOfComplete);
+		
 		
 		textField_8 = new JTextField();
 		textField_8.setColumns(10);
