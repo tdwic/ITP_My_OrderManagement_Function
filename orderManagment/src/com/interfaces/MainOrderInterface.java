@@ -80,11 +80,11 @@ public class MainOrderInterface {
 	private JTextField productID;
 	private JTable table;
 	
-	private JComboBox cmbProductType;
-	private JComboBox comboBox_2;
-	private JComboBox cmbSuperID;
-	private JComboBox cmbColor;
-	private JComboBox cmpTransport;
+	private JComboBox<String> cmbProductType;
+	private JComboBox<String> comboBox_2;
+	private JComboBox<String> cmbSuperID;
+	private JComboBox<String> cmbColor;
+	private JComboBox<String> cmpTransport;
 	
 	private JDateChooser dayOfNeed;
 	private JDateChooser orderDate;
@@ -104,6 +104,7 @@ public class MainOrderInterface {
 	private static Connection connection ;
 	private static Statement statement ;
 	private PreparedStatement preStatement ;
+	private static boolean textBoxFull = false;
 	
 	//Other Common variables
 	
@@ -389,9 +390,7 @@ public class MainOrderInterface {
 	 */
 	public MainOrderInterface() {
 		initialize();
-		clientID.setText(id_Generator.clientID_Generator(clientRecordsServices.getClientID()));
-		txtOrderID.setText(id_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
-		
+
 		supervicerID = new JTextField();
 		supervicerID.setEditable(false);
 		supervicerID.setBounds(697, 208, 62, 20);
@@ -399,15 +398,17 @@ public class MainOrderInterface {
 		supervicerID.setColumns(10);
 		
 		JButton btnNewButton_7 = new JButton("Clear");
+		btnNewButton_7.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnNewButton_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
-		btnNewButton_7.setBounds(246, 376, 113, 24);
+		btnNewButton_7.setBounds(215, 343, 144, 46);
 		frame.getContentPane().add(btnNewButton_7);
 		
 		JButton btnNewButton_8 = new JButton("Clear");
-		btnNewButton_8.setBounds(646, 376, 113, 24);
+		btnNewButton_8.setFont(new Font("Tahoma", Font.BOLD, 13));
+		btnNewButton_8.setBounds(629, 343, 130, 46);
 		frame.getContentPane().add(btnNewButton_8);
 		
 		produtTypeFill();
@@ -415,6 +416,31 @@ public class MainOrderInterface {
 		superviceNameID(role);
 		
 		table.setModel(new DefaultTableModel());
+		
+		JButton btnNewButton_9 = new JButton("New Order");
+		btnNewButton_9.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
+		btnNewButton_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				warning_message_result = JOptionPane.showConfirmDialog (null, "Already a member of UNIC..","Warning",warnin_message_button);
+				
+				if(warning_message_result == JOptionPane.YES_OPTION){
+					
+					JOptionPane.showMessageDialog(null, "Please Select that client from given list or search the client..");
+					viewAllClients();
+					
+				}else {
+					
+					clientID.setText(ID_Generator.clientID_Generator(clientRecordsServices.getClientID()));
+					txtOrderID.setText(ID_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
+					
+					table.setModel(new DefaultTableModel());
+					
+				}
+			}
+		});
+		btnNewButton_9.setBounds(10, 275, 349, 56);
+		frame.getContentPane().add(btnNewButton_9);
 
 		
 	}
@@ -425,7 +451,7 @@ public class MainOrderInterface {
 	private void initialize() {
 	
 		frame = new JFrame();
-		frame.setBounds(100, 100, 785, 622);
+		frame.setBounds(100, 100, 785, 672);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -475,9 +501,18 @@ public class MainOrderInterface {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (lastName.getText().equals("") != true) {
+					
+					if (clientID.getText().equals("") == true) {
+						textBoxFull = false;
+					}
+					
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("LName",lastName.getText())));
+					textBoxFull = true;
 				} else {
-					table.setModel(new DefaultTableModel());
+					if (textBoxFull != true) {
+						table.setModel(new DefaultTableModel());
+						textBoxFull = false;
+					}
 				}
 			}
 		});
@@ -500,9 +535,18 @@ public class MainOrderInterface {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (firstName.getText().equals("") != true) {
+					
+					if (clientID.getText().equals("") == true) {
+						textBoxFull = false;
+					}
+					
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("FName",firstName.getText())));
+					textBoxFull = true;
 				} else {
-					table.setModel(new DefaultTableModel());
+					if (textBoxFull != true) {
+						table.setModel(new DefaultTableModel());
+						textBoxFull = false;
+					}
 				}
 				
 				
@@ -518,9 +562,17 @@ public class MainOrderInterface {
 			public void keyReleased(KeyEvent e) {
 				String text = clientID.getText();
 				if(clientID.getText().equals("") != true) {
-				table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("clientID",clientID.getText())));
+					if (clientID.getText().equals("") == true) {
+						textBoxFull = false;
+					}
+					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.searchAndSort("clientID",clientID.getText())));
+					textBoxFull = true;
 				} else {
-					table.setModel(new DefaultTableModel());
+					if (textBoxFull != true) {
+						table.setModel(new DefaultTableModel());
+						textBoxFull = false;
+					}
+					
 				}
 			}
 		});
@@ -544,6 +596,7 @@ public class MainOrderInterface {
 		frame.getContentPane().add(lblAddress);
 		
 		JButton btnNewButton_1 = new JButton("Update Client");
+		btnNewButton_1.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 2;
@@ -553,10 +606,10 @@ public class MainOrderInterface {
 		
 			}
 		});
-		btnNewButton_1.setBounds(10, 344, 113, 23);
+		btnNewButton_1.setBounds(10, 396, 193, 40);
 		frame.getContentPane().add(btnNewButton_1);
 		//s
-		JButton btnSearchClient = new JButton("Search Client");
+		/*JButton btnSearchClient = new JButton("Search Client");
 		btnSearchClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -591,7 +644,7 @@ public class MainOrderInterface {
 			}
 		});
 		btnSearchClient.setBounds(129, 344, 113, 23);
-		frame.getContentPane().add(btnSearchClient);
+		frame.getContentPane().add(btnSearchClient);*/
 		
 		txtOrderID = new JTextField();
 		txtOrderID.setColumns(10);
@@ -629,6 +682,7 @@ public class MainOrderInterface {
 		frame.getContentPane().add(lblSuperviserId);
 		
 		JButton btnNewButton_2 = new JButton("Place Order");
+		btnNewButton_2.setFont(new Font("Tahoma", Font.BOLD, 17));
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 8;
@@ -639,27 +693,20 @@ public class MainOrderInterface {
 			}
 		});
 		btnNewButton_2.setBackground(Color.GREEN);
-		btnNewButton_2.setBounds(417, 376, 228, 23);
+		btnNewButton_2.setBounds(417, 344, 200, 45);
 		frame.getContentPane().add(btnNewButton_2);
 		
 		JButton btnNewButton_3 = new JButton("Update Order");
+		btnNewButton_3.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 9;
 			}
 		});
-		btnNewButton_3.setBounds(417, 344, 113, 23);
+		btnNewButton_3.setBounds(417, 396, 200, 40);
 		frame.getContentPane().add(btnNewButton_3);
 		
-		JButton btnNewButton_4 = new JButton("Search Order");
-		btnNewButton_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				refreshValue = 10;
-				System.out.println(orderDate.getDate());
-			}
-		});
-		btnNewButton_4.setBounds(532, 344, 113, 23);
-		frame.getContentPane().add(btnNewButton_4);
+		
 		
 		cmbSuperID = new JComboBox();
 		cmbSuperID.addItem("Please Select");
@@ -763,6 +810,7 @@ public class MainOrderInterface {
 		frame.getContentPane().add(Location);
 		
 		JButton btnNewButton = new JButton("Add Client");
+		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 17));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {	
 				refreshValue = 1;
@@ -772,20 +820,22 @@ public class MainOrderInterface {
 
 			}
 		});
-		btnNewButton.setBounds(10, 376, 232, 23);
+		btnNewButton.setBounds(10, 344, 193, 45);
 		frame.getContentPane().add(btnNewButton);
 		
 		JButton btnViewAllOrders = new JButton("All Orders");
+		btnViewAllOrders.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnViewAllOrders.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 5;
 				viewAllOrders();
 			}
 		});
-		btnViewAllOrders.setBounds(646, 439, 114, 23);
+		btnViewAllOrders.setBounds(646, 484, 114, 23);
 		frame.getContentPane().add(btnViewAllOrders);
 		
 		JButton btnRefresh = new JButton("Refresh");
+		btnRefresh.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (refreshValue > 7) {
@@ -805,10 +855,11 @@ public class MainOrderInterface {
 				}
 			}
 		});
-		btnRefresh.setBounds(646, 411, 114, 23);
+		btnRefresh.setBounds(646, 456, 114, 23);
 		frame.getContentPane().add(btnRefresh);
 		
 		JButton btnRemoveClient = new JButton("Remove Client");
+		btnRemoveClient.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnRemoveClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 	System.out.println(IsClientCheckEmpty());
@@ -827,16 +878,17 @@ public class MainOrderInterface {
 			}
 
 		});
-		btnRemoveClient.setBounds(246, 344, 113, 23);
+		btnRemoveClient.setBounds(214, 396, 145, 40);
 		frame.getContentPane().add(btnRemoveClient);
 		
 		JButton btnNewButton_5 = new JButton("Remove Order");
+		btnNewButton_5.setFont(new Font("Tahoma", Font.BOLD, 13));
 		btnNewButton_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 11;
 			}
 		});
-		btnNewButton_5.setBounds(646, 344, 113, 23);
+		btnNewButton_5.setBounds(629, 396, 130, 40);
 		frame.getContentPane().add(btnNewButton_5);
 		
 		Remark = new JTextField();
@@ -860,14 +912,15 @@ public class MainOrderInterface {
 		frame.getContentPane().add(cmbColor);
 		
 		JButton btnNewButton_6 = new JButton("Report Generate");
-		btnNewButton_6.setBounds(646, 530, 113, 42);
+		btnNewButton_6.setFont(new Font("Tahoma", Font.BOLD, 13));
+		btnNewButton_6.setBounds(646, 575, 113, 42);
 		frame.getContentPane().add(btnNewButton_6);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setEnabled(false);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setBounds(10, 411, 626, 161);
+		scrollPane.setBounds(10, 456, 626, 161);
 		frame.getContentPane().add(scrollPane);
 		
 		table = new JTable();
@@ -895,7 +948,7 @@ public class MainOrderInterface {
 		productID.setBounds(697, 81, 62, 22);
 		frame.getContentPane().add(productID);
 		productID.setColumns(10);
-		frame.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{comboBox_2, textField_8, frame.getContentPane(), emailAddress, label, label_1, contactNumber, nicNo, label_2, label_3, companyName, lastName, label_4, label_5, firstName, clientID, label_6, address, btnQuichSearch, lblAddress, btnNewButton_1, btnSearchClient, txtOrderID, lblOrderId, lblOrderType, lblOrderDate, lblDayOfNeed, lblDayOfComplete, lblSuperviserId, btnNewButton_2, btnNewButton_3, btnNewButton_4, cmbSuperID, lblProductType, orderDate, orderDate.getCalendarButton(), dayOfNeed, dayOfNeed.getCalendarButton(), dayOfComplete, dayOfComplete.getCalendarButton(), lblAmount, lblAmount_1, quantity1, lblAvailability, lblTransportType, cmpTransport, lblRemark, Location, btnNewButton, btnViewAllOrders, btnRefresh, btnRemoveClient, btnNewButton_5, Remark, label_7, lblColor, cmbColor, btnNewButton_6}));
+		frame.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{comboBox_2, textField_8, frame.getContentPane(), emailAddress, label, label_1, contactNumber, nicNo, label_2, label_3, companyName, lastName, label_4, label_5, firstName, clientID, label_6, address, btnQuichSearch, lblAddress, btnNewButton_1, txtOrderID, lblOrderId, lblOrderType, lblOrderDate, lblDayOfNeed, lblDayOfComplete, lblSuperviserId, btnNewButton_2, btnNewButton_3,  cmbSuperID, lblProductType, orderDate, orderDate.getCalendarButton(), dayOfNeed, dayOfNeed.getCalendarButton(), dayOfComplete, dayOfComplete.getCalendarButton(), lblAmount, lblAmount_1, quantity1, lblAvailability, lblTransportType, cmpTransport, lblRemark, Location, btnNewButton, btnViewAllOrders, btnRefresh, btnRemoveClient, btnNewButton_5, Remark, label_7, lblColor, cmbColor, btnNewButton_6}));
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
