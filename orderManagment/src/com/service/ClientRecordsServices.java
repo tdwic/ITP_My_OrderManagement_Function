@@ -63,17 +63,17 @@ public class ClientRecordsServices {
 
 	
 	
-	public void updateClient(String clientID, Client client) {
+	public void updateClient(Client client) {
 		try {
 			
 			connection = DbConnect.getDBConnection();
-			String updateClient = "UPDATE unic.customer SET  FName = '"+client.getFirstName()+"', LName = '"+client.getLastName()+"', companyName = '"+client.getCompanyName()+"', NICNo = '"+client.getNicNo()+"', ContactNo = '"+client.getContactNo()+"', Email = '"+client.getEmailAddress()+"', Address = '"+client.getClientAddress()+"' WHERE (clientID = '"+clientID+"')";
+			String updateClient = "UPDATE unic.customer SET  FName = '"+client.getFirstName()+"', LName = '"+client.getLastName()+"', companyName = '"+client.getCompanyName()+"', NICNo = '"+client.getNicNo()+"', ContactNo = '"+client.getContactNo()+"', Email = '"+client.getEmailAddress()+"', Address = '"+client.getClientAddress()+"' WHERE (clientID = '"+client.getClientId()+"')";
 	
 			
 			preStatement = connection.prepareStatement(updateClient);
 			
 			preStatement.executeUpdate() ;
-			JOptionPane.showMessageDialog(null, "Record no: "+clientID+" Updated Sucessfully....");
+			JOptionPane.showMessageDialog(null, "Record no: "+client.getClientId()+" Updated Sucessfully....");
 			
 		}catch(SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 			
@@ -98,16 +98,16 @@ public class ClientRecordsServices {
 		try {
 			connection = DbConnect.getDBConnection();
 			
-			String deleteClient = "delete from customer where customer.clientID = ?";
-			
+			String deleteClient = "DELETE FROM `unic`.`customer` WHERE (`clientID` = '"+clientID+"');";
+
 			preStatement = connection.prepareStatement(deleteClient);
-			
-			preStatement.setString(1, clientID);
+
+			System.out.println(preStatement);
 			preStatement.executeUpdate() ;
 			JOptionPane.showMessageDialog(null, "Record no: "+clientID+" Removed Sucessfully....");
 			
 		}catch(SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			
+			JOptionPane.showMessageDialog(null, "This client have order...");
 		}finally {
 			try {
 				if (preStatement != null) {
@@ -123,10 +123,11 @@ public class ClientRecordsServices {
 		}
 		
 	}
-
-	public ResultSet searchAndSort(String colom_name,String inputFieldName) {
+	
+	
+	public ResultSet viewAllClients() {
 		try {
-			String selectClient = "SELECT * FROM unic.customer where "+colom_name+" like '"+"%"+inputFieldName+"%"+"'";
+			String selectClient = "select * from customer";
 			connection = DbConnect.getDBConnection();
 			preStatement = connection.prepareStatement(selectClient);
 			ResultSet resultSet = preStatement.executeQuery();
@@ -134,9 +135,9 @@ public class ClientRecordsServices {
 		} catch (Exception e) {
 			return null;
 		}
-				
 	}
 	
+
 	
 	public ArrayList<String> getClientID(){
 		ArrayList<String> clientID_List = new ArrayList<String>();

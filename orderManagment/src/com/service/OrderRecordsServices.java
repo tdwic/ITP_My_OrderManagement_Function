@@ -11,13 +11,35 @@ import javax.swing.JOptionPane;
 import com.model.*;
 import com.util.DbConnect;
 
+import net.proteanit.sql.DbUtils;
+
 
 public class OrderRecordsServices {
 	
 	private static Connection connection ;
 	private PreparedStatement preStatement ;
 	
+	private int prodctAvailableCount;
 	
+	
+	public int chekAvailability(String productID) {
+		try {
+			connection=DbConnect.getDBConnection();
+			String chekAvailability = "SELECT quantity FROM unic.product_store WHERE itemID = '"+productID+"'";
+			preStatement = connection.prepareStatement(chekAvailability);
+			ResultSet chekAvailabilitySet = preStatement.executeQuery();
+			
+			while (chekAvailabilitySet.next()) {
+				prodctAvailableCount = chekAvailabilitySet.getInt("quantity");
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return prodctAvailableCount;
+		
+	}
 	
 	
 	public void addOrder(Order order, Client client) {
@@ -64,12 +86,62 @@ public class OrderRecordsServices {
 		}
 	}
 	
-	public  void updateOrder(String orderID, Order order) {
+	public  void updateOrder(Order order, Client client) {
+		try {
+			connection = DbConnect.getDBConnection();
+			String updateOrder = "UPDATE unic.order SET orderID = '"+order.getOrderID()+"', clientID = '"+client.getClientId()+"', productID = '"+order.getProductType()+"', orderDate = '"+order.getOrderDate()+"', dayOfNeed = '"+order.getDayOfNeed()+"', dayOfComplete = '"+order.getDayOfComplete()+"', quantity = '"+order.getQuantity()+"', superviser = '"+order.getSuperviserID()+"', transportType = '"+order.getTransportType()+"', location = '"+order.getLocation()+"', remarks = '"+order.getRemark()+"' WHERE (orderID = '"+order.getOrderID()+"')";
+			preStatement = connection.prepareStatement(updateOrder);
+			System.out.println(preStatement);
+			preStatement.executeUpdate();
+			JOptionPane.showMessageDialog(null, "Record no: "+order.getOrderID()+" Updated Sucessfully....");
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}finally {
+			try {
+				if (preStatement != null) {
+					preStatement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			}catch(SQLException e) {
+				
+			}
+			
+		}
 		
 	}
 	
 	public void removeOrder(String orderID) {
-		
+		try {
+			connection = DbConnect.getDBConnection();
+			
+			String deleteOrder = "delete from unic.order where order.orderID = ?";
+			preStatement = connection.prepareStatement(deleteOrder);
+			preStatement.setString(1, orderID);
+			preStatement.executeUpdate() ;
+			JOptionPane.showMessageDialog(null, "Record no: "+orderID+" Removed Sucessfully....");
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	
+	
+	public ResultSet viewAllOrders() {
+		try {
+			String selectClient = "select * from order";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectClient);
+			ResultSet resultSet = preStatement.executeQuery();
+			return resultSet;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	

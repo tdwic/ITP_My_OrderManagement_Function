@@ -1,6 +1,7 @@
 package com.model;
 
 public class Order {
+	
 	private String orderID;
 	private String productType;
 	private String orderDate;
