@@ -86,7 +86,7 @@ public class MainOrderInterface extends JFrame {
 		private int warnin_message_button = JOptionPane.YES_NO_OPTION;
 		private int warning_message_result;
 		private int refreshValue;
-		private int numOfProducts, userInputQuantity;
+		private static int numOfProducts, userInputQuantity;
 		
 		private String role = "SUP";
 		private String QuickProductSearchID;
@@ -122,7 +122,7 @@ public class MainOrderInterface extends JFrame {
 			boolean validate5 = nicNo.getText().matches("^[V0-9]*$") && nicNo.getText().length() == 10;
 			boolean validate6 = contactNumber.getText().matches("^[0-9]*$") && contactNumber.getText().length() == 10;
 			boolean validate7 = emailAddress.getText().matches("^[1-9a-zA-Z@.]*$") && emailAddress.getText().length() > 5;
-			boolean validate8 = address.getText().matches("^[1-9a-zA-Z/,.]*$") && address.getText().length() > 5;
+			boolean validate8 = address.getText().matches("^[0-9a-zA-Z/,.]*$") && address.getText().length() > 2;
 			
 			if (validate1  && validate2 && validate3 && validate4 && validate5 && validate6 && validate7 && validate8 ) {
 				return true;
@@ -132,31 +132,25 @@ public class MainOrderInterface extends JFrame {
 		}
 		
 		
-		public void validateOrderFields() {
+		public boolean validateOrderFields() {
 			boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() == 5 ;
 			boolean validate2 = productID.getText().matches("^[P0-9]*$") && productID.getText().length() == 5 && (cmbProductType.getSelectedIndex() == 1 || cmbProductType.getSelectedIndex() == 2) ;
 			boolean validate3 = (orderDate.getDate() != null);
 			boolean validate4 = (dayOfNeed.getDate() != null);
 			boolean validate5 = (dayOfComplete.getDate() != null);
-			boolean validate6 = quantity1.getText().matches("^[1-9]*$") && clientID.getText().length() >=2 ;
-			boolean validate7 = supervicerID.getText().matches("^[E0-9]*$") && clientID.getText().length() >=2 && (cmbSuperID.getSelectedIndex() == 1 || cmbSuperID.getSelectedIndex() == 2) ;
+			boolean validate6 = quantity1.getText().matches("^[0-9]*$") && quantity1.getText().length() >=2 ;
+			boolean validate7 = supervicerID.getText().matches("^[E0-9]*$") && supervicerID.getText().length() >=2 && (cmbSuperID.getSelectedIndex() != 0) ;
 			boolean validate8 = cmpTransport.getSelectedItem().equals("Company") || cmpTransport.getSelectedItem().equals("Private");
 			boolean validate9 = Colorinput.getText().length() > 2;
 			boolean validate10 = Location.getText().matches("^[,/0-9A-Za-z]*$") &&Location.getText().length() > 2;
 			boolean validate11 = cmbRemark.getSelectedIndex() == 1 || cmbRemark.getSelectedIndex() == 2;
-			System.out.println("stsrt");
-			System.out.println("1"+validate1);
-			System.out.println("2"+validate2);
-			System.out.println("3"+validate3);
-			System.out.println("4"+validate4);
-			System.out.println("5"+validate5);
-			System.out.println("6"+validate6);
-			System.out.println("7"+validate7);
-			System.out.println("8"+validate8);
-			System.out.println("9"+validate9);
-			System.out.println("10"+validate10);
-			System.out.println("11"+validate11);
-			System.out.println("end");
+			
+			if (validate1  && validate2 && validate3 && validate4 && validate5 && validate6 && validate7 && validate8 && validate9 && validate10 && validate11 ) {
+				return true;
+			} else {
+				return false;
+			}
+
 		}
 		
 		public void produtTypeFill() {
@@ -218,10 +212,10 @@ public class MainOrderInterface extends JFrame {
 		}
 		
 		public void superviceNameID(String role) {
-			String superRole = role;
+			
 			
 			try {
-				String selectSupervicer = "SELECT DISTINCT FName,LName FROM user_main WHERE Role = '"+superRole+"'";
+				String selectSupervicer = "SELECT DISTINCT FName,LName FROM user_main WHERE Role = '"+role+"'";
 				connection = DbConnect.getDBConnection();
 				preStatement = connection.prepareStatement(selectSupervicer);
 				ResultSet productSet = preStatement.executeQuery();
@@ -376,7 +370,7 @@ public class MainOrderInterface extends JFrame {
 			  
 		}
 		
-		private void clearCustomerFields() {
+		private void clearCustomerFields(){
 			clientID.setText(null);
 			firstName.setText(null);
 			lastName.setText(null);	
@@ -386,6 +380,21 @@ public class MainOrderInterface extends JFrame {
 			emailAddress.setText(null);
 			address.setText(null);					
 		}
+		
+		private void clearOrderFields() {
+			txtOrderID.setText(null);
+			cmbProductType.setSelectedIndex(0);
+			productID.setText(null);
+			quantity1.setText(null);
+			cmbSuperID.setSelectedIndex(0);
+			supervicerID.setText(null);
+			cmpTransport.setSelectedIndex(0);
+			Colorinput.setText(null);
+			Location.setText(null);
+			cmbRemark.setSelectedIndex(0);
+			
+		}
+		
 		
 		private void allProductItems() {
 			int rowNumber = table.getSelectedRow();
@@ -408,6 +417,10 @@ public class MainOrderInterface extends JFrame {
 		
 		private Boolean IsClientCheckEmpty() {
 			return ((clientID.getText().length()==0 || firstName.getText().length()==0) || lastName.getText().length()==0 );
+		}
+		
+		private boolean IsOrderCheckEmpty() {
+			return ((txtOrderID.getText().length() == 0 || productID.getText().length() == 0 ));
 		}
 	
 
@@ -566,6 +579,8 @@ public class MainOrderInterface extends JFrame {
 					clearCustomerFields();
 					JOptionPane.showMessageDialog(null, "Please Select that client from given list or search the client..");
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
+					txtOrderID.setText(ID_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
+					txtOrderID.setEditable(false);
 					clientID.setEditable(false);
 					refreshValue = 1;
 					
@@ -675,7 +690,24 @@ public class MainOrderInterface extends JFrame {
 		JButton button_7 = new JButton("Remove Order");
 		button_7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				refreshValue = 5;
+				if (IsOrderCheckEmpty() != false) {
+					JOptionPane.showMessageDialog(null, "Please Search Select your Order Details to Verify Before Done This Process, Because This Process Can't be Undone..");
+				} else {
+					warning_message_result = JOptionPane.showConfirmDialog (null, "Do you want to remove this Order..","Warning",warnin_message_button);
+					if(warning_message_result == JOptionPane.YES_OPTION){
+						refreshValue = 5;
+						orderRecordsServices.removeOrder(txtOrderID.getText());
+						clearCustomerFields();
+						clearOrderFields();
+						table.setModel(DbUtils.resultSetToTableModel(orderRecordsServices.viewAllOrders()));
+						
+					}
+					
+				}
+				
+				
+				
+				
 			}
 		});
 		button_7.setFont(new Font("Tahoma", Font.BOLD, 13));
@@ -689,7 +721,8 @@ public class MainOrderInterface extends JFrame {
 				refreshValue = 5;
 				textSetClient();
 				textSetOrder();
-				orderRecordsServices.updateOrder(order, client);	
+				orderRecordsServices.updateOrder(order, client);
+				table.setModel(DbUtils.resultSetToTableModel(orderRecordsServices.viewAllOrders()));
 				
 			}
 		});
@@ -700,12 +733,33 @@ public class MainOrderInterface extends JFrame {
 		JButton button_9 = new JButton("Place Order");
 		button_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				numOfProducts = orderRecordsServices.chekAvailability(productID.getText());
+				userInputQuantity = Integer.parseInt(quantity1.getText());
 				if (rootPaneCheckingEnabled) {
-					refreshValue = 5;
-					textSetClient();
-					textSetOrder();
-					clientRecordsServices.addClient(client);
-					orderRecordsServices.addOrder(order, client);
+					if (validateClientFields()) {
+						if (validateOrderFields()) {
+							if (numOfProducts > userInputQuantity) {
+								refreshValue = 5;
+								textSetClient();
+								textSetOrder();
+								clientRecordsServices.addClient(client);
+								orderRecordsServices.addOrder(order, client);
+								orderRecordsServices.updateProductQuantity(productID.getText(), numOfProducts - userInputQuantity);
+								table.setModel(DbUtils.resultSetToTableModel(orderRecordsServices.viewAllOrders()));
+								
+							} else {
+								JOptionPane.showMessageDialog(null,"Insuficent Amount To Proceed");
+							}
+							
+							
+						} else {
+							JOptionPane.showMessageDialog(null, "Please Check Order Fields Again Carefully");
+						}
+						
+					} else  {
+						JOptionPane.showMessageDialog(null, "Please Check Client Fields Again Carefully");
+					}
+					
 					
 				} else {
 
@@ -890,20 +944,30 @@ public class MainOrderInterface extends JFrame {
 			public void keyReleased(KeyEvent arg0) {
 				String orderIdUserInput = txtOrderID.getText();
 				
-				if(orderIdUserInput.equals("") != true) {
-					if (orderIdUserInput.equals("") == true) {
-						textBoxFull = false;
+				boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() <= 5;
+				if (validate1) {
+					if(orderIdUserInput.equals("") != true) {
+						if (orderIdUserInput.equals("") == true) {
+							textBoxFull = false;
+						}
+						refreshValue = 2;
+						table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("order","orderID",orderIdUserInput)));
+						textBoxFull = true;
+					} else {
+						if (textBoxFull != true) {
+							table.setModel(new DefaultTableModel());
+							textBoxFull = false;
+						}
+						
 					}
-					refreshValue = 2;
-					table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("order","orderID",orderIdUserInput)));
-					textBoxFull = true;
-				} else {
-					if (textBoxFull != true) {
-						table.setModel(new DefaultTableModel());
-						textBoxFull = false;
-					}
+				}else {
+					table.setModel(new DefaultTableModel());
+					txtOrderID.setText(null);
+					JOptionPane.showMessageDialog(null, "Specail Characters and Any LOWERCASE Letters Are Not Valid\nUse This Correct Format 'Eg:-O0001' ");
 					
 				}
+				
+				
 				
 			}
 		});
@@ -957,6 +1021,13 @@ public class MainOrderInterface extends JFrame {
 		contentPane.add(dayOfComplete);
 		
 		quantity1 = new JTextField();
+		quantity1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				boolean validate6 = quantity1.getText().matches("^[0-9]*$") && quantity1.getText().length() >=2 ;
+				
+			}
+		});
 		quantity1.setColumns(10);
 		quantity1.setBounds(583, 328, 209, 20);
 		contentPane.add(quantity1);
@@ -1079,6 +1150,8 @@ public class MainOrderInterface extends JFrame {
 					}
 				}else if (refreshValue == 3) {
 					allProductItems();
+				}else if (refreshValue == 4) {
+					supervicerID();
 				}
 				
 				

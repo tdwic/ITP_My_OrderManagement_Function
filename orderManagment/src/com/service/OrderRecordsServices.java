@@ -134,7 +134,7 @@ public class OrderRecordsServices {
 	
 	public ResultSet viewAllOrders() {
 		try {
-			String selectClient = "select * from order";
+			String selectClient = "SELECT * FROM unic.order";
 			connection = DbConnect.getDBConnection();
 			preStatement = connection.prepareStatement(selectClient);
 			ResultSet resultSet = preStatement.executeQuery();
@@ -196,5 +196,19 @@ public class OrderRecordsServices {
 		
 		return orderID_List;
 	}
+	
+	
+	public void updateProductQuantity(String productID, int remainingAmount) {
+		try {
+			connection = DbConnect.getDBConnection();
+			String updateQuantity = "UPDATE unic.product_store SET quantity = '"+remainingAmount+"' WHERE (itemID = '"+productID+"') ";
+			preStatement = connection.prepareStatement(updateQuantity);
+			preStatement.executeUpdate();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+	
 
 }
