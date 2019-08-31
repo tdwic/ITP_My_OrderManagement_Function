@@ -131,21 +131,33 @@ public class MainOrderInterface extends JFrame {
 			}
 		}
 		
-		/*
-		public boolean validateOrderFields() {
-			boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && clientID.getText().length() == 5 ;
-			boolean validate2 = productID.getText().matches("^[P0-9]*$") && clientID.getText().length() == 5 ;
+		
+		public void validateOrderFields() {
+			boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() == 5 ;
+			boolean validate2 = productID.getText().matches("^[P0-9]*$") && productID.getText().length() == 5 && (cmbProductType.getSelectedIndex() == 1 || cmbProductType.getSelectedIndex() == 2) ;
 			boolean validate3 = (orderDate.getDate() != null);
 			boolean validate4 = (dayOfNeed.getDate() != null);
 			boolean validate5 = (dayOfComplete.getDate() != null);
 			boolean validate6 = quantity1.getText().matches("^[1-9]*$") && clientID.getText().length() >=2 ;
-			boolean validate7 = supervicerID.getText().matches("^[1-9]*$") && clientID.getText().length() >=2 ;
+			boolean validate7 = supervicerID.getText().matches("^[E0-9]*$") && clientID.getText().length() >=2 && (cmbSuperID.getSelectedIndex() == 1 || cmbSuperID.getSelectedIndex() == 2) ;
 			boolean validate8 = cmpTransport.getSelectedItem().equals("Company") || cmpTransport.getSelectedItem().equals("Private");
 			boolean validate9 = Colorinput.getText().length() > 2;
-			boolean validate10 = Location.getText().length() > 2;
+			boolean validate10 = Location.getText().matches("^[,/0-9A-Za-z]*$") &&Location.getText().length() > 2;
 			boolean validate11 = cmbRemark.getSelectedIndex() == 1 || cmbRemark.getSelectedIndex() == 2;
-			
-		}*/
+			System.out.println("stsrt");
+			System.out.println("1"+validate1);
+			System.out.println("2"+validate2);
+			System.out.println("3"+validate3);
+			System.out.println("4"+validate4);
+			System.out.println("5"+validate5);
+			System.out.println("6"+validate6);
+			System.out.println("7"+validate7);
+			System.out.println("8"+validate8);
+			System.out.println("9"+validate9);
+			System.out.println("10"+validate10);
+			System.out.println("11"+validate11);
+			System.out.println("end");
+		}
 		
 		public void produtTypeFill() {
 			try {
@@ -1024,9 +1036,9 @@ public class MainOrderInterface extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//cmbRemark.inde;
-				boolean validate11 = cmbRemark.getSelectedIndex() == 1 || cmbRemark.getSelectedIndex() == 2;
+				validateOrderFields();
 
-		System.out.println(validate11);
+		//System.out.println(validate11);
 			}
 		});
 		btnNewButton.setBounds(856, 270, 97, 25);
