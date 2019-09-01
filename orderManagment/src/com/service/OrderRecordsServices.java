@@ -69,7 +69,7 @@ public class OrderRecordsServices {
 			connection.commit();
 			
 		} catch(SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			JOptionPane.showMessageDialog(null, "Error....");
+			//JOptionPane.showMessageDialog(null, "Error....");
 		}finally {
 			try {
 				if (preStatement != null) {
