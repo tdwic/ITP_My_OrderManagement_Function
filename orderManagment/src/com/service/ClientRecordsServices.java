@@ -40,7 +40,7 @@ public class ClientRecordsServices {
 			preStatement.setString(8, client.getClientAddress());
 			
 			preStatement.executeUpdate() ;
-			JOptionPane.showMessageDialog(null, "Record Inserted Sucessfully....");			
+			JOptionPane.showMessageDialog(null, "Client Inserted Sucessfully....");			
 			connection.commit();
 			
 		} catch(SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {

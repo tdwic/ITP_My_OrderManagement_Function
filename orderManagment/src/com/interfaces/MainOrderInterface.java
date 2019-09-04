@@ -41,6 +41,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.JScrollPane;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import java.awt.SystemColor;
 
 public class MainOrderInterface extends JFrame {
 
@@ -80,7 +83,7 @@ public class MainOrderInterface extends JFrame {
 	private JDateChooser orderDate;
 	private JDateChooser dayOfComplete;
 	
-	
+
 	//Other Common variables
 	
 		private PreparedStatement preStatement ;
@@ -88,6 +91,7 @@ public class MainOrderInterface extends JFrame {
 		private int warnin_message_button = JOptionPane.YES_NO_OPTION;
 		private int warning_message_result;
 		private int refreshValue = 0;
+		private int newOrderValue = 0;
 		private static int numOfProducts, userInputQuantity;
 		
 		private String role = "SUP";
@@ -113,6 +117,8 @@ public class MainOrderInterface extends JFrame {
 		ID_Generator id_Generator = new ID_Generator();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		private JTextField Colorinput;
+		private JScrollPane scrollPane_1;
+		private JTextPane txtpnUseThisFields_1;
 		
 		
 		//Object Declaration
@@ -138,7 +144,7 @@ public class MainOrderInterface extends JFrame {
 		
 		public boolean validateOrderFields() {
 			boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() == 5 ;
-			boolean validate2 = productID.getText().matches("^[P0-9]*$") && productID.getText().length() == 5 && cmbProductType.getSelectedIndex() != 0 ;
+			boolean validate2 = productID.getText().matches("^[PR0-9]*$") && productID.getText().length() == 6 && cmbProductType.getSelectedIndex() != 0 ;
 			boolean validate3 = (orderDate.getDate() != null);
 			boolean validate4 = (dayOfNeed.getDate() != null);
 			boolean validate5 = (dayOfComplete.getDate() != null);
@@ -248,7 +254,7 @@ public class MainOrderInterface extends JFrame {
 				int cnt = table.getRowCount();
 				if (cnt >= 2) {
 					supervicerID.setText(null);
-					JOptionPane.showMessageDialog(null, "select one");
+					JOptionPane.showMessageDialog(null, "select Correct Supervisor..");
 					return true;
 				} else {
 					table.setModel(new DefaultTableModel());
@@ -276,7 +282,7 @@ public class MainOrderInterface extends JFrame {
 				
 				if (cnt >= 2) {
 					productID.setText(null);
-					JOptionPane.showMessageDialog(null, "select one");
+					JOptionPane.showMessageDialog(null, "Select Correct Product..");
 					return true;
 				} else {
 					
@@ -288,6 +294,42 @@ public class MainOrderInterface extends JFrame {
 			} catch (Exception e) {
 				return false;
 			}
+		}
+		
+		
+		public void orderDisable() {
+			txtOrderID.setEditable(false);
+			cmbProductType.setEnabled(false);
+			orderDate.setEnabled(false);
+			dayOfComplete.setEnabled(false);
+			dayOfNeed.setEnabled(false);
+			productID.setEditable(false);
+			quantity1.setEditable(false);
+			cmbSuperID.setEnabled(false);
+			supervicerID.setEditable(false);
+			cmpTransport.setEnabled(false);
+			Colorinput.setEditable(false);
+			Location.setEditable(false);
+			cmbRemark.setEnabled(false);
+			
+		}
+		public void orderEnableable() {
+			cmbProductType.setEnabled(true);
+			orderDate.setEnabled(true);
+			dayOfComplete.setEnabled(true);
+			dayOfNeed.setEnabled(true);
+			quantity1.setEditable(true);
+			cmbSuperID.setEnabled(true);
+			cmpTransport.setEnabled(true);
+			cmbRemark.setEnabled(true);
+			Location.setEditable(true);
+
+			if (processingRemoved == true) {
+				cmbRemark.addItem("Processing");
+				processingRemoved = false;
+			}
+			//cmbRemark.setSelectedItem();
+			
 		}
 		
 		
@@ -361,6 +403,7 @@ public class MainOrderInterface extends JFrame {
 			} else {
 				if (processingRemoved == true) {
 					cmbRemark.addItem("Processing");
+					processingRemoved = false;
 				}
 				cmbRemark.setSelectedItem("Complete");
 				cmbRemark.setEnabled(false);
@@ -405,18 +448,15 @@ public class MainOrderInterface extends JFrame {
 		
 		private void allProductItems() {
 			int rowNumber = table.getSelectedRow();
-			JOptionPane.showMessageDialog(null, "Product Only");
 			cmbProductType.setSelectedItem(table.getValueAt(rowNumber, 1).toString());
 			productID.setText(table.getValueAt(rowNumber, 0).toString());
 			Colorinput.setText(table.getValueAt(rowNumber, 4).toString());
 			QuickProductSearchID = (table.getValueAt(rowNumber, 0).toString());
-			
-			System.out.println(QuickProductSearchID);
+
 		}
 		
 		
 		private void supervicerID() {
-			JOptionPane.showMessageDialog(null, "Supervicer Only");
 			int rowNumber = table.getSelectedRow();
 			supervicerID.setText(table.getValueAt(rowNumber, 0).toString());
 		
@@ -452,117 +492,120 @@ public class MainOrderInterface extends JFrame {
 	 * Create the frame.
 	 */
 	public MainOrderInterface() {
+		setTitle("Orders");
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1071, 962);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(-3, 20, 1071, 972);
 		contentPane = new JPanel();
-		contentPane.setBackground(new Color(255, 228, 181));
+		contentPane.setBackground(new Color(255, 250, 205));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JLabel label_1 = new JLabel("Client ID");
 		label_1.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_1.setBounds(23, 138, 86, 14);
+		label_1.setBounds(23, 186, 86, 14);
 		contentPane.add(label_1);
 		
 		JLabel label_2 = new JLabel("First Name");
 		label_2.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_2.setBounds(23, 175, 86, 14);
+		label_2.setBounds(23, 223, 86, 14);
 		contentPane.add(label_2);
 		
 		JLabel label_3 = new JLabel("Last Name");
 		label_3.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_3.setBounds(23, 215, 86, 14);
+		label_3.setBounds(23, 263, 86, 14);
 		contentPane.add(label_3);
 		
 		JLabel label_4 = new JLabel("Company Name");
 		label_4.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_4.setBounds(23, 252, 130, 14);
+		label_4.setBounds(23, 300, 130, 14);
 		contentPane.add(label_4);
 		
 		JLabel label_5 = new JLabel("NIC No");
 		label_5.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_5.setBounds(23, 291, 71, 14);
+		label_5.setBounds(23, 339, 71, 14);
 		contentPane.add(label_5);
 		
 		JLabel label_6 = new JLabel("Contact No");
 		label_6.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_6.setBounds(23, 329, 94, 14);
+		label_6.setBounds(23, 377, 94, 14);
 		contentPane.add(label_6);
 		
 		JLabel label_7 = new JLabel("Email");
 		label_7.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_7.setBounds(23, 367, 86, 14);
+		label_7.setBounds(23, 415, 86, 14);
 		contentPane.add(label_7);
 		
 		JLabel label_8 = new JLabel("Address");
 		label_8.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_8.setBounds(23, 404, 86, 14);
+		label_8.setBounds(23, 452, 86, 14);
 		contentPane.add(label_8);
 		
 		JLabel label_12 = new JLabel("Product Type");
 		label_12.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_12.setBounds(532, 175, 130, 14);
+		label_12.setBounds(532, 223, 130, 14);
 		contentPane.add(label_12);
 		
 		JLabel label_13 = new JLabel("Order Date");
 		label_13.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_13.setBounds(532, 215, 86, 14);
+		label_13.setBounds(532, 263, 86, 14);
 		contentPane.add(label_13);
 		
 		JLabel label_14 = new JLabel("Day Of Need");
 		label_14.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_14.setBounds(532, 291, 113, 14);
+		label_14.setBounds(532, 339, 113, 14);
 		contentPane.add(label_14);
 	
 		JLabel label_15 = new JLabel("Remark");
 		label_15.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_15.setBounds(532, 516, 113, 14);
+		label_15.setBounds(532, 564, 113, 14);
 		contentPane.add(label_15);
 		
 		JLabel label_16 = new JLabel("Location");
 		label_16.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_16.setBounds(532, 485, 113, 14);
+		label_16.setBounds(532, 533, 113, 14);
 		contentPane.add(label_16);
 		
 		JLabel lblProductColour = new JLabel("Product Colour");
 		lblProductColour.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblProductColour.setBounds(532, 442, 130, 14);
+		lblProductColour.setBounds(532, 490, 130, 14);
 		contentPane.add(lblProductColour);
 		
 		JLabel label_18 = new JLabel("Transport Type");
 		label_18.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_18.setBounds(532, 404, 130, 14);
+		label_18.setBounds(532, 452, 130, 14);
 		contentPane.add(label_18);
 		
 		JLabel label_19 = new JLabel("Superviser ID");
 		label_19.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_19.setBounds(532, 367, 113, 14);
+		label_19.setBounds(532, 415, 113, 14);
 		contentPane.add(label_19);
 		
 		JLabel label_20 = new JLabel("Quantity");
 		label_20.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_20.setBounds(532, 329, 113, 14);
+		label_20.setBounds(532, 377, 113, 14);
 		contentPane.add(label_20);
 		
 		JLabel label_21 = new JLabel("Day Of Complete");
 		label_21.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_21.setBounds(532, 252, 144, 14);
+		label_21.setBounds(532, 300, 144, 14);
 		contentPane.add(label_21);
 
 		JLabel label_11 = new JLabel("Order ID");
 		label_11.setFont(new Font("Tahoma", Font.BOLD, 15));
-		label_11.setBounds(532, 138, 86, 14);
+		label_11.setBounds(532, 186, 86, 14);
 		contentPane.add(label_11);
 		
 		
 		
 		
 		JButton newOrderButton = new JButton("New Order");
+		newOrderButton.setBackground(new Color(210, 105, 30));
+		newOrderButton.setForeground(SystemColor.text);
 		newOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				placeOrderButton.setEnabled(true);
+				
 				orderUpdate.setEnabled(false);
 				orderRemove.setEnabled(false);
 				clientRemoveButton.setEnabled(false);
@@ -571,7 +614,8 @@ public class MainOrderInterface extends JFrame {
 				
 				clearCustomerFields();
 				clearOrderFields();
-				cmbRemark.setSelectedIndex(1);
+				cmbRemark.setSelectedItem("Processing");
+				placeOrderButton.setEnabled(true);
 				cmbRemark.setEnabled(false);
 				
 				warning_message_result = JOptionPane.showConfirmDialog (null, "Already a member of UNIC..","Warning",warnin_message_button);
@@ -579,7 +623,10 @@ public class MainOrderInterface extends JFrame {
 				if(warning_message_result == JOptionPane.YES_OPTION){
 					if (processingRemoved == true) {
 						cmbRemark.addItem("Processing");
+						processingRemoved = false;
 					}
+					newOrderValue = 1;
+					orderDisable();
 					clientAddButton.setEnabled(false);
 					JOptionPane.showMessageDialog(null, "Please Select that client from given list or search the client..");
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
@@ -592,7 +639,11 @@ public class MainOrderInterface extends JFrame {
 				}else {
 					if (processingRemoved == true) {
 						cmbRemark.addItem("Processing");
+						processingRemoved = false;
 					}
+					newOrderValue = 1;
+					orderDisable();
+					txtOrderID.setEditable(false);
 					clientID.setText(ID_Generator.clientID_Generator(clientRecordsServices.getClientID()));
 					txtOrderID.setText(ID_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
 					clientID.setEditable(false);
@@ -606,10 +657,12 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		newOrderButton.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
-		newOrderButton.setBounds(22, 495, 420, 68);
+		newOrderButton.setBounds(22, 520, 420, 68);
 		contentPane.add(newOrderButton);
 		
 		clientAddButton = new JButton("Add Client");
+		clientAddButton.setForeground(SystemColor.text);
+		clientAddButton.setBackground(SystemColor.textHighlight);
 		clientAddButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -619,7 +672,9 @@ public class MainOrderInterface extends JFrame {
 					refreshValue = 1;
 					textSetClient();	
 					clientRecordsServices.addClient(client);
+					clearCustomerFields();
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
+					
 				} else {
 					JOptionPane.showMessageDialog(null, "Please Check  the Fields Again Carefully");
 				}	
@@ -627,12 +682,15 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		clientAddButton.setFont(new Font("Tahoma", Font.BOLD, 17));
-		clientAddButton.setBounds(23, 576, 193, 33);
+		clientAddButton.setBounds(23, 602, 193, 40);
 		contentPane.add(clientAddButton);
 	
 		clientClearButton = new JButton("Cancel");
+		clientClearButton.setForeground(SystemColor.text);
+		clientClearButton.setBackground(new Color(178, 34, 34));
 		clientClearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				newOrderValue = 0;
 				clearCustomerFields();
 				clientID.setEditable(true);
 				clientAddButton.setEnabled(true);
@@ -646,10 +704,12 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		clientClearButton.setFont(new Font("Tahoma", Font.BOLD, 13));
-		clientClearButton.setBounds(221, 576, 221, 33);
+		clientClearButton.setBounds(221, 602, 221, 40);
 		contentPane.add(clientClearButton);
 		
 		clientUpdateButton = new JButton("Update Client");
+		clientUpdateButton.setForeground(SystemColor.text);
+		clientUpdateButton.setBackground(SystemColor.textHighlight);
 		clientUpdateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				boolean clientValidate = validateClientFields();
@@ -665,10 +725,12 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		clientUpdateButton.setFont(new Font("Tahoma", Font.BOLD, 13));
-		clientUpdateButton.setBounds(23, 622, 193, 40);
+		clientUpdateButton.setBounds(23, 651, 193, 40);
 		contentPane.add(clientUpdateButton);
 		
 		clientRemoveButton = new JButton("Remove Client");
+		clientRemoveButton.setForeground(SystemColor.text);
+		clientRemoveButton.setBackground(new Color(178, 34, 34));
 		clientRemoveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 		
@@ -689,15 +751,20 @@ public class MainOrderInterface extends JFrame {
 		});
 		
 		clientRemoveButton.setFont(new Font("Tahoma", Font.BOLD, 13));
-		clientRemoveButton.setBounds(223, 622, 219, 40);
+		clientRemoveButton.setBounds(223, 651, 219, 40);
 		contentPane.add(clientRemoveButton);
 		
 		orderClearButton = new JButton("Cancel");
+		orderClearButton.setForeground(SystemColor.text);
+		orderClearButton.setBackground(new Color(178, 34, 34));
 		orderClearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				placeOrderButton.setEnabled(true);
 				orderRemove.setEnabled(true);
 				orderUpdate.setEnabled(true);
+				if (newOrderValue == 0) {
+					orderEnableable();
+				}
 				
 				cmbRemark.setEnabled(true);
 				clearOrderFields();
@@ -708,10 +775,12 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		orderClearButton.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderClearButton.setBounds(881, 570, 150, 46);
+		orderClearButton.setBounds(881, 606, 150, 41);
 		contentPane.add(orderClearButton);
 		
 		orderRemove = new JButton("Remove Order");
+		orderRemove.setForeground(SystemColor.text);
+		orderRemove.setBackground(new Color(178, 34, 34));
 		orderRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (IsOrderCheckEmpty() != false) {
@@ -725,6 +794,12 @@ public class MainOrderInterface extends JFrame {
 						clearOrderFields();
 						table.setModel(DbUtils.resultSetToTableModel(orderRecordsServices.viewAllOrders()));
 						
+						if (processingRemoved == true) {
+							cmbRemark.addItem("Processing");
+							processingRemoved = false;
+						}
+						orderEnableable();
+						
 					}
 					
 				}
@@ -735,10 +810,12 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		orderRemove.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderRemove.setBounds(881, 622, 150, 40);
+		orderRemove.setBounds(881, 654, 150, 40);
 		contentPane.add(orderRemove);
 		
 		orderUpdate = new JButton("Update Order");
+		orderUpdate.setForeground(SystemColor.text);
+		orderUpdate.setBackground(SystemColor.textHighlight);
 		orderUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (validateOrderFields()) {
@@ -754,19 +831,20 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		orderUpdate.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderUpdate.setBounds(532, 622, 337, 40);
+		orderUpdate.setBounds(532, 654, 337, 40);
 		contentPane.add(orderUpdate);
 		
 		placeOrderButton = new JButton("Place Order");
+		placeOrderButton.setForeground(SystemColor.text);
 		placeOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				numOfProducts = orderRecordsServices.chekAvailability(productID.getText());
-				userInputQuantity = Integer.parseInt(quantity1.getText());
+				
 				if (rootPaneCheckingEnabled) {
 					if (validateClientFields()) {
 						if (validateOrderFields()) {
 							if (numOfProducts > userInputQuantity) {
-								
+								numOfProducts = orderRecordsServices.chekAvailability(productID.getText());
+								userInputQuantity = Integer.parseInt(quantity1.getText());
 								//refreshValue = 5;
 								textSetClient();
 								textSetOrder();
@@ -783,6 +861,8 @@ public class MainOrderInterface extends JFrame {
 								clientRemoveButton.setEnabled(true);
 								clientUpdateButton.setEnabled(true);
 								clientID.setEditable(true);
+								clearOrderFields();
+								clearCustomerFields();
 								
 							} else {
 								JOptionPane.showMessageDialog(null,"Insuficent Amount To Proceed\nOnly Have "+numOfProducts+" Products Only");
@@ -806,352 +886,51 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		placeOrderButton.setFont(new Font("Tahoma", Font.BOLD, 17));
-		placeOrderButton.setBackground(Color.GREEN);
-		placeOrderButton.setBounds(532, 569, 337, 45);
+		placeOrderButton.setBackground(new Color(210, 105, 30));
+		placeOrderButton.setBounds(532, 606, 337, 40);
 		contentPane.add(placeOrderButton);
 		
 		JButton button_11 = new JButton("All Orders");
+		button_11.setForeground(SystemColor.text);
+		button_11.setBackground(SystemColor.textHighlight);
 		button_11.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refreshValue = 2;
 				table.setModel(DbUtils.resultSetToTableModel(orderRecordsServices.viewAllOrders()));
+				clearCustomerFields();
 			}
 		});
 		button_11.setFont(new Font("Tahoma", Font.BOLD, 13));
-		button_11.setBounds(881, 685, 151, 40);
+		button_11.setBounds(880, 714, 151, 40);
 		contentPane.add(button_11);
 		
-		JButton button_13 = new JButton("Report Generate");
+		JButton button_13 = new JButton("All Clients");
+		button_13.setForeground(SystemColor.text);
+		button_13.setBackground(SystemColor.textHighlight);
+		button_13.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				clearOrderFields();
+				refreshValue = 1;
+				table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
+				
+			}
+		});
 		button_13.setFont(new Font("Tahoma", Font.BOLD, 13));
-		button_13.setBounds(881, 738, 150, 42);
+		button_13.setBounds(881, 767, 150, 42);
 		contentPane.add(button_13);
 		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(23, 714, 846, 210);
+		contentPane.add(scrollPane_1);
+		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(23, 688, 846, 226);
-		contentPane.add(scrollPane);
-		
-		
-		
-		
-		
-		
-		
-		address = new JTextField();
-		address.setColumns(10);
-		address.setBounds(165, 397, 277, 30);
-		contentPane.add(address);
-		
-		emailAddress = new JTextField();
-		emailAddress.setColumns(10);
-		emailAddress.setBounds(165, 360, 277, 30);
-		contentPane.add(emailAddress);
-		
-		contactNumber = new JTextField();
-		contactNumber.setColumns(10);
-		contactNumber.setBounds(165, 322, 277, 30);
-		contentPane.add(contactNumber);
-		
-		nicNo = new JTextField();
-		nicNo.setColumns(10);
-		nicNo.setBounds(165, 284, 277, 30);
-		contentPane.add(nicNo);
-		
-		companyName = new JTextField();
-		companyName.setText("None");
-		companyName.setColumns(10);
-		companyName.setBounds(165, 247, 277, 30);
-		contentPane.add(companyName);
-		
-		lastName = new JTextField();
-		lastName.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				
-				if (lastName.getText().equals("") != true) {
-					
-					if (clientID.getText().equals("") == true) {
-						textBoxFull = false;
-					}
-					refreshValue = 1;
-					table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","LName",lastName.getText())));
-					textBoxFull = true;
-				} else {
-					if (textBoxFull != true) {
-						table.setModel(new DefaultTableModel());
-						textBoxFull = false;
-					}
-				}
-				
-			}
-		});
-		lastName.setColumns(10);
-		lastName.setBounds(165, 208, 277, 30);
-		contentPane.add(lastName);
-		
-		firstName = new JTextField();
-		firstName.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				
-				if (firstName.getText().equals("") != true) {
-					
-					if (clientID.getText().equals("") == true) {
-						textBoxFull = false;
-					}
-					refreshValue = 1;
-					table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","FName",firstName.getText())));
-					textBoxFull = true;
-				} else {
-					if (textBoxFull != true) {
-						table.setModel(new DefaultTableModel());
-						textBoxFull = false;
-					}
-				}
-				
-			}
-		});
-		firstName.setColumns(10);
-		firstName.setBounds(165, 168, 277, 30);
-		contentPane.add(firstName);
-		
-		clientID = new JTextField();
-		clientID.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		clientID.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				boolean validate1 = clientID.getText().matches("^[C0-9]*$");
-				String clientIdUserInput = clientID.getText();
-				
-				if (validate1 != true) {
-					JOptionPane.showMessageDialog(null, "No Special Charcters, Only letter 'C' in UPERCASE.. \n'! @ # $ % ^ & * ( ) _ + : c '");
-					clientID.setText(null);
-					
-				}else {
-					if(clientIdUserInput.equals("") != true) {
-						if (clientIdUserInput.equals("") == true) {
-							textBoxFull = false;
-						}
-						refreshValue = 1;
-						table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","clientID",clientIdUserInput)));
-						textBoxFull = true;
-					} else {
-						if (textBoxFull != true) {
-							table.setModel(new DefaultTableModel());
-							textBoxFull = false;
-						}
-						
-					}
-				}
-				
-				
-				
-			}
-		});
-		clientID.setColumns(10);
-		clientID.setBounds(165, 130, 277, 30);
-		contentPane.add(clientID);
-		
-		txtOrderID = new JTextField();
-		txtOrderID.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				String orderIdUserInput = txtOrderID.getText();
-				
-				boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() <= 5;
-				if (validate1) {
-					if(orderIdUserInput.equals("") != true) {
-						if (orderIdUserInput.equals("") == true) {
-							textBoxFull = false;
-						}
-						cmbRemark.setEnabled(true);
-						refreshValue = 2;
-						table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("order","orderID",orderIdUserInput)));
-						textBoxFull = true;
-					} else {
-						if (textBoxFull != true) {
-							table.setModel(new DefaultTableModel());
-							textBoxFull = false;
-						}
-						
-					}
-				}else {
-					table.setModel(new DefaultTableModel());
-					txtOrderID.setText(null);
-					JOptionPane.showMessageDialog(null, "Specail Characters and Any LOWERCASE Letters Are Not Valid\nUse This Correct Format 'Eg:-O0001' ");
-					
-				}
-				
-				
-				
-			}
-		});
-		txtOrderID.setColumns(10);
-		txtOrderID.setBounds(729, 130, 305, 30);
-		contentPane.add(txtOrderID);
-	
-		cmbProductType = new JComboBox();
-		cmbProductType.addItem("Please Select");
-		cmbProductType.setToolTipText("Select Product Name");
-		cmbProductType.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				boolean orderIDNull;
-				if (orderRetriview == false) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						if (cmbProductType.getSelectedItem().equals("Please Select")) {
-							productID.setText(null);						
-						}
-						QuickProductSearchKeyLock = "lock";
-						orderIDNull=viewAllProducts(e.getItem().toString());
-						refreshValue = 3;
-						if (orderIDNull == true) {
-							productID.setText(null);
-						}else {
-							productIDview(e.getItem().toString());
-						}
-						numOfProducts = orderRecordsServices.chekAvailability(String.valueOf(productID.getText()));
-						System.out.println(numOfProducts);
-				    }
-				}	
-				
-			}
-		});
-		cmbProductType.setBounds(729, 168, 199, 30);
-		contentPane.add(cmbProductType);
-		
-		productID = new JTextField();
-		productID.setEditable(false);
-		productID.setColumns(10);
-		productID.setBounds(940, 168, 94, 30);
-		contentPane.add(productID);
-		
-		orderDate = new JDateChooser();
-		orderDate.setDateFormatString("yyyy-MM-dd");
-		orderDate.setBounds(730, 208, 304, 30);
-		contentPane.add(orderDate);
-		
-		dayOfNeed = new JDateChooser();
-		dayOfNeed.setDateFormatString("yyyy-MM-dd");
-		dayOfNeed.setBounds(729, 284, 305, 30);
-		contentPane.add(dayOfNeed);
-		
-		dayOfComplete = new JDateChooser();
-		dayOfComplete.setDateFormatString("yyyy-MM-dd");
-		dayOfComplete.setBounds(730, 247, 304, 30);
-		contentPane.add(dayOfComplete);
-		
-		quantity1 = new JTextField();
-		quantity1.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				boolean validate6 = quantity1.getText().matches("^[0-9]*$");
-				if (validate6) {
-					
-				} else {
-					JOptionPane.showMessageDialog(null, "Use Only No of Products\nNo Special Charcters are allowed....!");
-					quantity1.setText(null);
-				}
-				
-				
-			}
-		});
-		quantity1.setColumns(10);
-		quantity1.setBounds(729, 322, 305, 30);
-		contentPane.add(quantity1);
-		
-		cmbSuperID = new JComboBox();
-		cmbSuperID.addItem("Please Select");
-		cmbSuperID.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				boolean supervicerSetNull;
-				String supervicerIDresult;
-				if (orderRetriview == false) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					
-						refreshValue = 4;
-						supervicerSetNull = viewAllSupervicers(e.getItem().toString());
-						
-						if (supervicerSetNull == true) {
-							supervicerID.setText(null); 
-						} else {
-							supervicerIDresult = orderRecordsServices.superviceIDView(e.getItem().toString());
-							supervicerID.setText(supervicerIDresult);
-						}
-						 
-				    }
-					}
-				
-			}
-		});
-		cmbSuperID.setBounds(729, 360, 199, 30);
-		contentPane.add(cmbSuperID);
-		
-		supervicerID = new JTextField();
-		supervicerID.setEditable(false);
-		supervicerID.setColumns(10);
-		supervicerID.setBounds(940, 360, 94, 30);
-		contentPane.add(supervicerID);
-		
-		cmpTransport = new JComboBox();
-		cmpTransport.addItem("Select Transport Type");
-		cmpTransport.addItem("Company");
-		cmpTransport.addItem("Private");
-		cmpTransport.setBounds(729, 397, 305, 30);
-		contentPane.add(cmpTransport);
-		
-		Location = new JTextField();
-		Location.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				boolean validate10 = Location.getText().matches("^[0-9A-Za-z,./-]*$");
-				
-				if (validate10) {
-					
-				} else {
-					JOptionPane.showMessageDialog(null, "Use Only Dilevery Location Address\nNo Special Charcters are allowed....!");
-					Location.setText(null);
-				}
-				
-			}
-		});
-		Location.setColumns(10);
-		Location.setBounds(729, 472, 305, 30);
-		contentPane.add(Location);
-		
-		Colorinput = new JTextField();
-		Colorinput.setEditable(false);
-		Colorinput.setBounds(729, 435, 305, 30);
-		contentPane.add(Colorinput);
-		Colorinput.setColumns(10);
+		scrollPane_1.setViewportView(scrollPane);
 		
 		
 		
 		
 		table = new JTable();
 		scrollPane.setViewportView(table);
-		
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(65, 105, 225));
-		panel.setBounds(0, 0, 1111, 94);
-		contentPane.add(panel);
-		panel.setLayout(null);
-		
-		JLabel lblOrderManagement = new JLabel("ORDER MANAGEMENT");
-		lblOrderManagement.setForeground(Color.WHITE);
-		lblOrderManagement.setFont(new Font("Showcard Gothic", Font.BOLD, 30));
-		lblOrderManagement.setBounds(379, 13, 354, 51);
-		panel.add(lblOrderManagement);
-		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 0, 0));
-		panel_1.setBounds(0, 100, 1111, 14);
-		contentPane.add(panel_1);
-		
-		cmbRemark = new JComboBox();
-		cmbRemark.addItem("Please Select");
-		cmbRemark.addItem("Processing");
-		cmbRemark.addItem("Complete");
-		cmbRemark.setBounds(729, 509, 305, 30);
-		contentPane.add(cmbRemark);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -1161,11 +940,18 @@ public class MainOrderInterface extends JFrame {
 					clientAddButton.setEnabled(false);
 					clientUpdateButton.setEnabled(true);
 					clientRemoveButton.setEnabled(true);
+					if (validateClientFields() == true) {
+						orderEnableable();
+					}else {
+						orderDisable();
+					}
+					
 				} else if (refreshValue == 2) {
 					placeOrderButton.setEnabled(false);
 					orderUpdate.setEnabled(true);
 					clientAddButton.setEnabled(false);
 					try {
+						orderRemove.setEnabled(true);
 						allOrderItems();
 						orderRetriview = true;
 						ResultSet productName = commonServices.searchAndSort("product", "productID", productID.getText().toString());
@@ -1210,8 +996,487 @@ public class MainOrderInterface extends JFrame {
 			}
 		});
 		
-		// orderClearButton.setEnabled(false);
 		
+		
+		
+		
+		
+		
+		address = new JTextField();
+		address.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				
+				boolean validate8 = address.getText().matches("^[0-9a-zA-Z/,.]*$");
+				if (validate8 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed except / , ");
+					address.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+			}
+		});
+		address.setFont(new Font("Dialog", Font.PLAIN, 15));
+		address.setColumns(10);
+		address.setBounds(165, 445, 277, 30);
+		contentPane.add(address);
+		
+		emailAddress = new JTextField();
+		emailAddress.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				boolean validate7 = emailAddress.getText().matches("^[1-9a-zA-Z@.]*$");
+				if (validate7 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed except @");
+					emailAddress.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+			}
+		});
+		emailAddress.setFont(new Font("Dialog", Font.PLAIN, 15));
+		emailAddress.setColumns(10);
+		emailAddress.setBounds(165, 408, 277, 30);
+		contentPane.add(emailAddress);
+		
+		contactNumber = new JTextField();
+		contactNumber.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				boolean validate6 = contactNumber.getText().matches("^[0-9]*$");
+				if (validate6 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed");
+					contactNumber.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+			}
+		});
+		contactNumber.setFont(new Font("Dialog", Font.PLAIN, 15));
+		contactNumber.setColumns(10);
+		contactNumber.setBounds(165, 370, 277, 30);
+		contentPane.add(contactNumber);
+		
+		nicNo = new JTextField();
+		nicNo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				boolean validate5 = nicNo.getText().matches("^[V0-9]*$");
+				if (validate5 != true) {
+					JOptionPane.showMessageDialog(null, "Use Only UPPER CASE 'V'");
+					nicNo.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+			}
+		});
+		nicNo.setFont(new Font("Dialog", Font.PLAIN, 15));
+		nicNo.setColumns(10);
+		nicNo.setBounds(165, 332, 277, 30);
+		contentPane.add(nicNo);
+		
+		companyName = new JTextField();
+		companyName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				boolean validate4 = companyName.getText().matches("^[a-zA-Z0-9]*$");
+				if (validate4 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed");
+					companyName.setText("None");
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+			}
+		});
+		companyName.setFont(new Font("Dialog", Font.PLAIN, 15));
+		companyName.setText("None");
+		companyName.setColumns(10);
+		companyName.setBounds(165, 295, 277, 30);
+		contentPane.add(companyName);
+		
+		lastName = new JTextField();
+		lastName.setFont(new Font("Dialog", Font.PLAIN, 15));
+		lastName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				boolean validate3 = lastName.getText().matches("^[a-zA-Z]*$");
+				if (validate3 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed");
+					lastName.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+				
+				if (lastName.getText().equals("") != true) {
+					
+					if (clientID.getText().equals("") == true) {
+						textBoxFull = false;
+					}
+					refreshValue = 1;
+					table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","LName",lastName.getText())));
+					textBoxFull = true;
+				} else {
+					if (textBoxFull != true) {
+						table.setModel(new DefaultTableModel());
+						textBoxFull = false;
+					}
+				}
+				
+			}
+		});
+		lastName.setColumns(10);
+		lastName.setBounds(165, 256, 277, 30);
+		contentPane.add(lastName);
+		
+		firstName = new JTextField();
+		firstName.setFont(new Font("Dialog", Font.PLAIN, 15));
+		firstName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				boolean validate2 = firstName.getText().matches("^[a-zA-Z]*$");
+				if (validate2 != true) {
+					JOptionPane.showMessageDialog(null, "Special Charaters are not allowed");
+					firstName.setText(null);
+				}
+				
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+				}
+				
+				if (firstName.getText().equals("") != true) {
+					
+					if (clientID.getText().equals("") == true) {
+						textBoxFull = false;
+					}
+					refreshValue = 1;
+					table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","FName",firstName.getText())));
+					textBoxFull = true;
+				} else {
+					if (textBoxFull != true) {
+						table.setModel(new DefaultTableModel());
+						textBoxFull = false;
+					}
+				}
+				
+			}
+		});
+		firstName.setColumns(10);
+		firstName.setBounds(165, 216, 277, 30);
+		contentPane.add(firstName);
+		
+		clientID = new JTextField();
+		clientID.setFont(new Font("Dialog", Font.PLAIN, 15));
+		clientID.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (validateClientFields() == true) {
+					orderEnableable();
+				}else {
+					if (newOrderValue == 1) {
+						orderDisable();	
+					}
+					
+				}
+				
+				boolean validate1 = clientID.getText().matches("^[C0-9]*$");
+				String clientIdUserInput = clientID.getText();
+				
+				if (validate1 != true) {
+					JOptionPane.showMessageDialog(null, "No Special Charcters, Only letter 'C' in UPERCASE.. \n'! @ # $ % ^ & * ( ) _ + : c '");
+					clientID.setText(null);
+					
+				}else {
+					if(clientIdUserInput.equals("") != true) {
+						if (clientIdUserInput.equals("") == true) {
+							textBoxFull = false;
+						}
+						refreshValue = 1;
+						table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("customer","clientID",clientIdUserInput)));
+						textBoxFull = true;
+					} else {
+						if (textBoxFull != true) {
+							table.setModel(new DefaultTableModel());
+							textBoxFull = false;
+						}
+						
+					}
+				}
+				
+				
+				
+			}
+		});
+		clientID.setColumns(10);
+		clientID.setBounds(165, 178, 277, 30);
+		contentPane.add(clientID);
+		
+		txtOrderID = new JTextField();
+		txtOrderID.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		txtOrderID.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				String orderIdUserInput = txtOrderID.getText();
+				
+				boolean validate1 = txtOrderID.getText().matches("^[O0-9]*$") && txtOrderID.getText().length() <= 5;
+				if (validate1) {
+					if(orderIdUserInput.equals("") != true) {
+						if (orderIdUserInput.equals("") == true) {
+							textBoxFull = false;
+						}
+						cmbRemark.setEnabled(true);
+						refreshValue = 2;
+						table.setModel(DbUtils.resultSetToTableModel(commonServices.searchAndSort("order","orderID",orderIdUserInput)));
+						textBoxFull = true;
+					} else {
+						if (textBoxFull != true) {
+							table.setModel(new DefaultTableModel());
+							textBoxFull = false;
+						}
+						
+					}
+				}else {
+					table.setModel(new DefaultTableModel());
+					txtOrderID.setText(null);
+					JOptionPane.showMessageDialog(null, "Specail Characters and Any LOWERCASE Letters Are Not Valid\nUse This Correct Format 'Eg:-O0001' ");
+					
+				}
+				
+				
+				
+			}
+		});
+		txtOrderID.setColumns(10);
+		txtOrderID.setBounds(729, 178, 305, 30);
+		contentPane.add(txtOrderID);
+	
+		cmbProductType = new JComboBox();
+		cmbProductType.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		cmbProductType.addItem("Please Select");
+		cmbProductType.setToolTipText("Select Product Name");
+		cmbProductType.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				boolean orderIDNull;
+				if (orderRetriview == false) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						if (cmbProductType.getSelectedItem().equals("Please Select")) {
+							productID.setText(null);						
+						}
+						QuickProductSearchKeyLock = "lock";
+						orderIDNull=viewAllProducts(e.getItem().toString());
+						refreshValue = 3;
+						if (orderIDNull == true) {
+							productID.setText(null);
+						}else {
+							productIDview(e.getItem().toString());
+						}
+						numOfProducts = orderRecordsServices.chekAvailability(String.valueOf(productID.getText()));
+				    }
+				}	
+				
+			}
+		});
+		cmbProductType.setBounds(729, 216, 199, 30);
+		contentPane.add(cmbProductType);
+		
+		productID = new JTextField();
+		productID.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		productID.setEditable(false);
+		productID.setColumns(10);
+		productID.setBounds(940, 216, 94, 30);
+		contentPane.add(productID);
+		
+		orderDate = new JDateChooser();
+		orderDate.setDateFormatString("yyyy-MM-dd");
+		orderDate.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		orderDate.setBounds(730, 256, 304, 30);
+		contentPane.add(orderDate);
+		
+		dayOfNeed = new JDateChooser();
+		dayOfNeed.setDateFormatString("yyyy-MM-dd");
+		dayOfNeed.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		dayOfNeed.setBounds(729, 332, 305, 30);
+		contentPane.add(dayOfNeed);
+		
+		dayOfComplete = new JDateChooser();
+		dayOfComplete.setDateFormatString("yyyy-MM-dd");
+		dayOfComplete.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		dayOfComplete.setBounds(730, 295, 304, 30);
+		contentPane.add(dayOfComplete);
+		
+		quantity1 = new JTextField();
+		quantity1.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		quantity1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				boolean validate6 = quantity1.getText().matches("^[0-9]*$");
+				if (validate6) {
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "Use Only No of Products\nNo Special Charcters are allowed....!");
+					quantity1.setText(null);
+				}
+				
+				
+			}
+		});
+		quantity1.setColumns(10);
+		quantity1.setBounds(729, 370, 305, 30);
+		contentPane.add(quantity1);
+		
+		cmbSuperID = new JComboBox();
+		cmbSuperID.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		cmbSuperID.addItem("Please Select");
+		cmbSuperID.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				boolean supervicerSetNull;
+				String supervicerIDresult;
+				if (orderRetriview == false) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					
+						refreshValue = 4;
+						supervicerSetNull = viewAllSupervicers(e.getItem().toString());
+						
+						if (supervicerSetNull == true) {
+							supervicerID.setText(null); 
+						} else {
+							supervicerIDresult = orderRecordsServices.superviceIDView(e.getItem().toString());
+							supervicerID.setText(supervicerIDresult);
+						}
+						 
+				    }
+				}
+				
+			}
+		});
+		cmbSuperID.setBounds(729, 408, 199, 30);
+		contentPane.add(cmbSuperID);
+		
+		supervicerID = new JTextField();
+		supervicerID.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		supervicerID.setEditable(false);
+		supervicerID.setColumns(10);
+		supervicerID.setBounds(940, 408, 94, 30);
+		contentPane.add(supervicerID);
+		
+		cmpTransport = new JComboBox();
+		cmpTransport.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		cmpTransport.addItem("Select Transport Type");
+		cmpTransport.addItem("Company");
+		cmpTransport.addItem("Private");
+		cmpTransport.setBounds(729, 445, 305, 30);
+		contentPane.add(cmpTransport);
+		
+		Location = new JTextField();
+		Location.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		Location.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				boolean validate10 = Location.getText().matches("^[0-9A-Za-z,./-]*$");
+				
+				if (validate10) {
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "Use Only Dilevery Location Address\nNo Special Charcters are allowed....!");
+					Location.setText(null);
+				}
+				
+			}
+		});
+		Location.setColumns(10);
+		Location.setBounds(729, 520, 305, 30);
+		contentPane.add(Location);
+		
+		Colorinput = new JTextField();
+		Colorinput.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		Colorinput.setEditable(false);
+		Colorinput.setBounds(729, 483, 305, 30);
+		contentPane.add(Colorinput);
+		Colorinput.setColumns(10);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(SystemColor.textHighlight);
+		panel.setBounds(0, 0, 1065, 94);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblOrderManagement = new JLabel("ORDER MANAGEMENT");
+		lblOrderManagement.setHorizontalAlignment(SwingConstants.CENTER);
+		lblOrderManagement.setForeground(Color.WHITE);
+		lblOrderManagement.setFont(new Font("Showcard Gothic", Font.BOLD, 30));
+		lblOrderManagement.setBounds(12, 13, 1041, 68);
+		panel.add(lblOrderManagement);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 0, 51));
+		panel_1.setBounds(0, 95, 1065, 14);
+		contentPane.add(panel_1);
+
+		JTextPane txtpnUseThisFields = new JTextPane();
+		txtpnUseThisFields.setEditable(false);
+		txtpnUseThisFields.setFont(new Font("Tahoma", Font.BOLD, 13));
+		txtpnUseThisFields.setText("Use This Fields to Search Clients, Add Clients,\r\nUpdate Client Details, Remove Clients");
+		txtpnUseThisFields.setBounds(82, 127, 304, 40);
+		contentPane.add(txtpnUseThisFields);
+		
+		txtpnUseThisFields_1 = new JTextPane();
+		txtpnUseThisFields_1.setText("Use This Fields to Search Orders, Add Orders, \r\nUpdate Order Details, Remove Orders");
+		txtpnUseThisFields_1.setFont(new Font("Tahoma", Font.BOLD, 13));
+		txtpnUseThisFields_1.setBounds(637, 127, 344, 37);
+		contentPane.add(txtpnUseThisFields_1);
+		
+		
+		
+		cmbRemark = new JComboBox();
+		cmbRemark.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		cmbRemark.addItem("Please Select");
+		cmbRemark.addItem("Processing");
+		cmbRemark.addItem("Complete");
+		cmbRemark.setBounds(729, 557, 305, 30);
+		contentPane.add(cmbRemark);
 		
 		produtTypeFill();
 		superviceNameID(role);
@@ -1223,6 +1488,8 @@ public class MainOrderInterface extends JFrame {
 		orderRemove.setEnabled(false);
 		orderUpdate.setEnabled(false);
 		placeOrderButton.setEnabled(false);
+		
+
 
 	}
 }

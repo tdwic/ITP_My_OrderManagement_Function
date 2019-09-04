@@ -62,10 +62,10 @@ public class OrderRecordsServices {
 			preStatement.setString(10, order.getLocation());
 			preStatement.setString(11, order.getRemark());
 			
-			System.out.println(preStatement);
+	
 			
 			preStatement.executeUpdate() ;
-			JOptionPane.showMessageDialog(null, "Order Inserted Sucessfully....");
+			JOptionPane.showMessageDialog(null, "Order Placed Sucessfully....");
 			connection.commit();
 			
 		} catch(SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
