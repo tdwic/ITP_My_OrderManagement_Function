@@ -21,6 +21,32 @@ public class OrderRecordsServices {
 	
 	private int prodctAvailableCount;
 	
+	public ResultSet produtTypeFill() {
+		try {
+			String selectProductName= "select distinct productName from unic.product";
+			connection = DbConnect.getDBConnection();
+			preStatement = connection.prepareStatement(selectProductName);
+			ResultSet productSet = preStatement.executeQuery();
+			
+			return productSet;
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			JOptionPane.showMessageDialog(null, e);
+			return null;
+		}finally {
+			try {
+				if (preStatement != null) {
+					preStatement.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			}catch(SQLException e) {
+				
+			}
+		}
+	}
 	
 	public int chekAvailability(String productID) {
 		try {

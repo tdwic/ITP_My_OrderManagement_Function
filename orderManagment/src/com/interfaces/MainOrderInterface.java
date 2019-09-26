@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
+import javax.lang.model.element.Element;
 import javax.swing.JButton;
 import com.toedter.calendar.JDateChooser;
 
@@ -64,10 +65,9 @@ public class MainOrderInterface extends JFrame {
 	private JTextField Location;
 	
 	private JButton placeOrderButton;
-	private JButton orderClearButton;
-	private JButton orderUpdate;
-	private JButton orderRemove;
-	private JButton clientAddButton;
+	private JButton ClearOrderButton;
+	private JButton UpdateOrderButton;
+	private JButton RemoveOrderButton;
 	private JButton clientRemoveButton;
 	private JButton clientUpdateButton;
 	private JButton clientClearButton;
@@ -122,7 +122,166 @@ public class MainOrderInterface extends JFrame {
 		
 		
 		//Object Declaration
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+		//Button SetEnable True
 		
+		public void set_client_button_enable() {
+			clientUpdateButton.setEnabled(true);
+			clientRemoveButton.setEnabled(true);	
+		}
+		
+		public void set_order_button_enable() {
+			placeOrderButton.setEnabled(true);
+			UpdateOrderButton.setEnabled(true);
+			RemoveOrderButton.setEnabled(true);
+		}
+		
+		
+		//Button SetEnable True
+		
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+		
+		//Form Load Button Disable
+		public void form_Load_Client_Disable() {
+			clientUpdateButton.setEnabled(false);
+			clientRemoveButton.setEnabled(false);			
+		}
+		
+		public void form_Load_Order_Disable() {
+			placeOrderButton.setEnabled(false);
+			UpdateOrderButton.setEnabled(false);
+			RemoveOrderButton.setEnabled(false);
+		}
+		//Form Load Button Disable
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+		//Check Fields Empty Or Full
+		public boolean isCustomerFieldsEmpty() {
+			if(clientID.getText().toString().equals("") &
+		    firstName.getText().toString().equals("") &
+		     lastName.getText().toString().equals("") &
+		  companyName.getText().toString().equals("None") &
+		        nicNo.getText().toString().equals("") &
+		contactNumber.getText().toString().equals("") &
+		 emailAddress.getText().toString().equals("") &
+		      address.getText().toString().equals("")) {
+				
+				return true;
+				
+			}else {
+				return false;
+			}
+			
+			
+		}
+		
+		
+		//Check Fields Empty Or Full		
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+		
+		//New Order Button DIsable
+		public void NewOrder_Client_Disable() {
+			clientUpdateButton.setEnabled(false);
+			clientRemoveButton.setEnabled(false);
+		}
+		
+		
+		public void NewOrder_Order_Disable() {
+			UpdateOrderButton.setEnabled(false);
+			RemoveOrderButton.setEnabled(false);
+			placeOrderButton.setEnabled(false);
+			if (processingRemoved == true) {
+				cmbRemark.addItem("Processing");
+				cmbRemark.setSelectedItem("Processing");
+				cmbRemark.setEnabled(false);
+				processingRemoved = false;
+			} else {
+				cmbRemark.setSelectedItem("Processing");
+				cmbRemark.setEnabled(false);
+			}
+		}
+		
+		//New Order Button DIsable
+		
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+	
+		
+		//All Order Fields Disable
+		
+		public void orderDisable() {
+			txtOrderID.setEditable(false);
+			cmbProductType.setEnabled(false);
+			orderDate.setEnabled(false);
+			dayOfComplete.setEnabled(false);
+			dayOfNeed.setEnabled(false);
+			productID.setEditable(false);
+			quantity1.setEditable(false);
+			cmbSuperID.setEnabled(false);
+			supervicerID.setEditable(false);
+			cmpTransport.setEnabled(false);
+			Colorinput.setEditable(false);
+			Location.setEditable(false);
+			cmbRemark.setEnabled(false);
+			
+		}
+		//All Order Fields Disable
+		
+		
+		//All Order Fields Enable
+		
+		public void orderEnableable() {
+			cmbProductType.setEnabled(true);
+			orderDate.setEnabled(true);
+			dayOfComplete.setEnabled(true);
+			dayOfNeed.setEnabled(true);
+			quantity1.setEditable(true);
+			cmbSuperID.setEnabled(true);
+			cmpTransport.setEnabled(true);
+			cmbRemark.setEnabled(true);
+			Location.setEditable(true);
+
+			if (processingRemoved == true) {
+				cmbRemark.addItem("Processing");
+				processingRemoved = false;
+			}
+			
+		}
+		
+		//All Order Fields Enable
+		
+		
+		//SetValues to the model Class
+		
+		private void textSetClient() {
+			client.setClientId(clientID.getText());
+			client.setFirstName(firstName.getText());
+			client.setLastName(lastName.getText());
+			client.setCompanyName(companyName.getText());
+			client.setNicNo(nicNo.getText());
+			client.setContactNo(contactNumber.getText());
+			client.setEmailAddress(emailAddress.getText());
+			client.setClientAddress(address.getText());
+		}
+
+		private void textSetOrder() {
+			order.setOrderID(txtOrderID.getText());
+			order.setProductType(productID.getText());
+			order.setOrderDate(dateFormat.format(orderDate.getDate()));
+			order.setDayOfNeed(dateFormat.format(dayOfNeed.getDate()));
+			order.setDayOfComplete(dateFormat.format(dayOfComplete.getDate()));
+			order.setQuantity(quantity1.getText());
+			order.setSuperviserID(supervicerID.getText());
+			order.setTransportType(cmpTransport.getSelectedItem().toString());
+			order.setColor(Colorinput.getText());
+			order.setLocation(Location.getText());
+			order.setRemark(cmbRemark.getSelectedItem().toString());
+		}
+		
+		//SetValues to the model Class
+		
+		
+		//Client Field Validation
 		public boolean validateClientFields() {
 			
 			boolean validate1 = clientID.getText().matches("^[a-zA-Z0-9]*$") && clientID.getText().length() == 5 ;
@@ -165,6 +324,8 @@ public class MainOrderInterface extends JFrame {
 
 		}
 		
+		//Client Field Validation
+		
 		public void produtTypeFill() {
 			try {
 				String selectProductName= "select distinct productName from unic.product";
@@ -178,27 +339,20 @@ public class MainOrderInterface extends JFrame {
 				}
 				
 			} catch (Exception e) {
-				// TODO: handle exception
+				JOptionPane.showMessageDialog(null, e);
+			}finally {
+				try {
+					if (preStatement != null) {
+						preStatement.close();
+					}
+					if(connection != null) {
+						connection.close();
+					}
+				}catch(SQLException e) {
+					
+				}
 			}
 		}
-		
-		
-		/*public void produtColorFill() {
-			try {
-				String selectColour = "select distinct colour from unic.product";
-				connection = DbConnect.getDBConnection();
-				preStatement = connection.prepareStatement(selectColour);
-				ResultSet colourSet = preStatement.executeQuery();
-				
-				while (colourSet.next()) {
-					Colorinput.setText(colourSet.getString("colour"));
-				}
-				
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}*/
-		
 
 		public void productIDview(String nameProduct) {
 			String proName = nameProduct;
@@ -218,7 +372,18 @@ public class MainOrderInterface extends JFrame {
 				}
 				
 			} catch (Exception e) {
-				// TODO: handle exception
+				JOptionPane.showMessageDialog(null, e);
+			}finally {
+				try {
+					if (preStatement != null) {
+						preStatement.close();
+					}
+					if(connection != null) {
+						connection.close();
+					}
+				}catch(SQLException e) {
+					
+				}
 			}
 					
 		}
@@ -237,7 +402,18 @@ public class MainOrderInterface extends JFrame {
 				}
 				
 			} catch (Exception e) {
-				// TODO: handle exception
+				JOptionPane.showMessageDialog(null, e);
+			}finally {
+				try {
+					if (preStatement != null) {
+						preStatement.close();
+					}
+					if(connection != null) {
+						connection.close();
+					}
+				}catch(SQLException e) {
+					
+				}
 			}
 		}
 		
@@ -262,7 +438,19 @@ public class MainOrderInterface extends JFrame {
 				}
 				
 			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
 				return false;
+			}finally {
+				try {
+					if (preStatement != null) {
+						preStatement.close();
+					}
+					if(connection != null) {
+						connection.close();
+					}
+				}catch(SQLException e) {
+					
+				}
 			}
 		}
 		
@@ -292,79 +480,32 @@ public class MainOrderInterface extends JFrame {
 				}
 				
 			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
 				return false;
+			}finally {
+				try {
+					if (preStatement != null) {
+						preStatement.close();
+					}
+					if(connection != null) {
+						connection.close();
+					}
+				}catch(SQLException e) {
+					
+				}
 			}
 		}
-		
-		
-		public void orderDisable() {
-			txtOrderID.setEditable(false);
-			cmbProductType.setEnabled(false);
-			orderDate.setEnabled(false);
-			dayOfComplete.setEnabled(false);
-			dayOfNeed.setEnabled(false);
-			productID.setEditable(false);
-			quantity1.setEditable(false);
-			cmbSuperID.setEnabled(false);
-			supervicerID.setEditable(false);
-			cmpTransport.setEnabled(false);
-			Colorinput.setEditable(false);
-			Location.setEditable(false);
-			cmbRemark.setEnabled(false);
-			
-		}
-		public void orderEnableable() {
-			cmbProductType.setEnabled(true);
-			orderDate.setEnabled(true);
-			dayOfComplete.setEnabled(true);
-			dayOfNeed.setEnabled(true);
-			quantity1.setEditable(true);
-			cmbSuperID.setEnabled(true);
-			cmpTransport.setEnabled(true);
-			cmbRemark.setEnabled(true);
-			Location.setEditable(true);
 
-			if (processingRemoved == true) {
-				cmbRemark.addItem("Processing");
-				processingRemoved = false;
-			}
-			//cmbRemark.setSelectedItem();
-			
-		}
 		
 		
-		private void textSetClient() {
-
-			client.setClientId(clientID.getText());
-			client.setFirstName(firstName.getText());
-			client.setLastName(lastName.getText());
-			client.setCompanyName(companyName.getText());
-			client.setNicNo(nicNo.getText());
-			client.setContactNo(contactNumber.getText());
-			client.setEmailAddress(emailAddress.getText());
-			client.setClientAddress(address.getText());
-		}
-
-		private void textSetOrder() {
-			order.setOrderID(txtOrderID.getText());
-			order.setProductType(productID.getText());
-			order.setOrderDate(dateFormat.format(orderDate.getDate()));
-			order.setDayOfNeed(dateFormat.format(dayOfNeed.getDate()));
-			order.setDayOfComplete(dateFormat.format(dayOfComplete.getDate()));
-			order.setQuantity(quantity1.getText());
-			order.setSuperviserID(supervicerID.getText());
-			order.setTransportType(cmpTransport.getSelectedItem().toString());
-			order.setColor(Colorinput.getText());
-			order.setLocation(Location.getText());
-			order.setRemark(cmbRemark.getSelectedItem().toString());
-		}
+		
+		
 		
 		
 	
 		private void tableSelectItemClient() {
 			
 			int rowNumber = table.getSelectedRow();
-			
 			     clientID.setText(table.getValueAt(rowNumber, 0).toString());
 			    firstName.setText(table.getValueAt(rowNumber, 1).toString());
 			     lastName.setText(table.getValueAt(rowNumber, 2).toString());
@@ -399,7 +540,7 @@ public class MainOrderInterface extends JFrame {
 				cmbRemark.setEnabled(true);;
 				cmbRemark.setSelectedIndex(0);
 				placeOrderButton.setEnabled(false);
-				orderUpdate.setEnabled(true);
+				UpdateOrderButton.setEnabled(true);
 			} else {
 				if (processingRemoved == true) {
 					cmbRemark.addItem("Processing");
@@ -408,7 +549,7 @@ public class MainOrderInterface extends JFrame {
 				cmbRemark.setSelectedItem("Complete");
 				cmbRemark.setEnabled(false);
 				placeOrderButton.setEnabled(false);
-				orderUpdate.setEnabled(false);
+				UpdateOrderButton.setEnabled(false);
 				
 			}
 			
@@ -418,6 +559,7 @@ public class MainOrderInterface extends JFrame {
 		
 		private void clearCustomerFields(){
 			clientID.setText(null);
+			clientID.setEnabled(true);
 			firstName.setText(null);
 			lastName.setText(null);	
 			companyName.setText("None");	
@@ -605,18 +747,13 @@ public class MainOrderInterface extends JFrame {
 		newOrderButton.setForeground(SystemColor.text);
 		newOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				orderUpdate.setEnabled(false);
-				orderRemove.setEnabled(false);
-				clientRemoveButton.setEnabled(false);
-				clientUpdateButton.setEnabled(false);
-				
-				
 				clearCustomerFields();
 				clearOrderFields();
-				cmbRemark.setSelectedItem("Processing");
-				placeOrderButton.setEnabled(true);
-				cmbRemark.setEnabled(false);
+
+				NewOrder_Order_Disable();
+				NewOrder_Client_Disable();
+				
+
 				
 				warning_message_result = JOptionPane.showConfirmDialog (null, "Already a member of UNIC..","Warning",warnin_message_button);
 				
@@ -626,8 +763,7 @@ public class MainOrderInterface extends JFrame {
 						processingRemoved = false;
 					}
 					newOrderValue = 1;
-					orderDisable();
-					clientAddButton.setEnabled(false);
+					//orderDisable();
 					JOptionPane.showMessageDialog(null, "Please Select that client from given list or search the client..");
 					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
 					txtOrderID.setText(ID_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
@@ -648,7 +784,6 @@ public class MainOrderInterface extends JFrame {
 					txtOrderID.setText(ID_Generator.orderID_Generator(orderRecordsServices.getOrderID()));
 					clientID.setEditable(false);
 					table.setModel(new DefaultTableModel());
-					clientAddButton.setEnabled(true);
 					clientUpdateButton.setEnabled(true);
 					clientRemoveButton.setEnabled(true);
 					
@@ -659,31 +794,6 @@ public class MainOrderInterface extends JFrame {
 		newOrderButton.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
 		newOrderButton.setBounds(22, 520, 420, 68);
 		contentPane.add(newOrderButton);
-		
-		clientAddButton = new JButton("Add Client");
-		clientAddButton.setForeground(SystemColor.text);
-		clientAddButton.setBackground(SystemColor.textHighlight);
-		clientAddButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-				boolean clientValidate = validateClientFields();
-				
-				if (clientValidate) {
-					refreshValue = 1;
-					textSetClient();	
-					clientRecordsServices.addClient(client);
-					clearCustomerFields();
-					table.setModel(DbUtils.resultSetToTableModel(clientRecordsServices.viewAllClients()));
-					
-				} else {
-					JOptionPane.showMessageDialog(null, "Please Check  the Fields Again Carefully");
-				}	
-				
-			}
-		});
-		clientAddButton.setFont(new Font("Tahoma", Font.BOLD, 17));
-		clientAddButton.setBounds(23, 602, 193, 40);
-		contentPane.add(clientAddButton);
 	
 		clientClearButton = new JButton("Cancel");
 		clientClearButton.setForeground(SystemColor.text);
@@ -692,10 +802,14 @@ public class MainOrderInterface extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				newOrderValue = 0;
 				clearCustomerFields();
-				clientID.setEditable(true);
-				clientAddButton.setEnabled(true);
-				clientRemoveButton.setEnabled(true);
-				clientUpdateButton.setEnabled(true);
+				if (isCustomerFieldsEmpty() == true) {
+					form_Load_Client_Disable();
+				}else {
+					clientID.setEditable(true);
+					clientID.setEnabled(true);
+					set_client_button_enable();
+				}
+				
 				
 				if (orderRetriview == false) {
 					table.setModel(new DefaultTableModel());
@@ -754,14 +868,14 @@ public class MainOrderInterface extends JFrame {
 		clientRemoveButton.setBounds(223, 651, 219, 40);
 		contentPane.add(clientRemoveButton);
 		
-		orderClearButton = new JButton("Cancel");
-		orderClearButton.setForeground(SystemColor.text);
-		orderClearButton.setBackground(new Color(178, 34, 34));
-		orderClearButton.addActionListener(new ActionListener() {
+		ClearOrderButton = new JButton("Cancel");
+		ClearOrderButton.setForeground(SystemColor.text);
+		ClearOrderButton.setBackground(new Color(178, 34, 34));
+		ClearOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				placeOrderButton.setEnabled(true);
-				orderRemove.setEnabled(true);
-				orderUpdate.setEnabled(true);
+				RemoveOrderButton.setEnabled(true);
+				UpdateOrderButton.setEnabled(true);
 				if (newOrderValue == 0) {
 					orderEnableable();
 				}
@@ -774,14 +888,14 @@ public class MainOrderInterface extends JFrame {
 				//refreshValue = 5;
 			}
 		});
-		orderClearButton.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderClearButton.setBounds(881, 606, 150, 41);
-		contentPane.add(orderClearButton);
+		ClearOrderButton.setFont(new Font("Tahoma", Font.BOLD, 13));
+		ClearOrderButton.setBounds(881, 606, 150, 41);
+		contentPane.add(ClearOrderButton);
 		
-		orderRemove = new JButton("Remove Order");
-		orderRemove.setForeground(SystemColor.text);
-		orderRemove.setBackground(new Color(178, 34, 34));
-		orderRemove.addActionListener(new ActionListener() {
+		RemoveOrderButton = new JButton("Remove Order");
+		RemoveOrderButton.setForeground(SystemColor.text);
+		RemoveOrderButton.setBackground(new Color(178, 34, 34));
+		RemoveOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (IsOrderCheckEmpty() != false) {
 					JOptionPane.showMessageDialog(null, "Please Search Select your Order Details to Verify Before Done This Process, Because This Process Can't be Undone..");
@@ -809,14 +923,14 @@ public class MainOrderInterface extends JFrame {
 				
 			}
 		});
-		orderRemove.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderRemove.setBounds(881, 654, 150, 40);
-		contentPane.add(orderRemove);
+		RemoveOrderButton.setFont(new Font("Tahoma", Font.BOLD, 13));
+		RemoveOrderButton.setBounds(881, 654, 150, 40);
+		contentPane.add(RemoveOrderButton);
 		
-		orderUpdate = new JButton("Update Order");
-		orderUpdate.setForeground(SystemColor.text);
-		orderUpdate.setBackground(SystemColor.textHighlight);
-		orderUpdate.addActionListener(new ActionListener() {
+		UpdateOrderButton = new JButton("Update Order");
+		UpdateOrderButton.setForeground(SystemColor.text);
+		UpdateOrderButton.setBackground(SystemColor.textHighlight);
+		UpdateOrderButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (validateOrderFields()) {
 					//refreshValue = 5;
@@ -830,9 +944,9 @@ public class MainOrderInterface extends JFrame {
 
 			}
 		});
-		orderUpdate.setFont(new Font("Tahoma", Font.BOLD, 13));
-		orderUpdate.setBounds(532, 654, 337, 40);
-		contentPane.add(orderUpdate);
+		UpdateOrderButton.setFont(new Font("Tahoma", Font.BOLD, 13));
+		UpdateOrderButton.setBounds(532, 654, 337, 40);
+		contentPane.add(UpdateOrderButton);
 		
 		placeOrderButton = new JButton("Place Order");
 		placeOrderButton.setForeground(SystemColor.text);
@@ -855,9 +969,8 @@ public class MainOrderInterface extends JFrame {
 								clearCustomerFields();
 								clearOrderFields();
 								cmbRemark.setEnabled(true);
-								orderUpdate.setEnabled(true);
-								orderRemove.setEnabled(true);
-								clientAddButton.setEnabled(true);
+								UpdateOrderButton.setEnabled(true);
+								RemoveOrderButton.setEnabled(true);
 								clientRemoveButton.setEnabled(true);
 								clientUpdateButton.setEnabled(true);
 								clientID.setEditable(true);
@@ -937,7 +1050,6 @@ public class MainOrderInterface extends JFrame {
 				
 				if (refreshValue == 1) {
 					tableSelectItemClient();
-					clientAddButton.setEnabled(false);
 					clientUpdateButton.setEnabled(true);
 					clientRemoveButton.setEnabled(true);
 					if (validateClientFields() == true) {
@@ -948,10 +1060,9 @@ public class MainOrderInterface extends JFrame {
 					
 				} else if (refreshValue == 2) {
 					placeOrderButton.setEnabled(false);
-					orderUpdate.setEnabled(true);
-					clientAddButton.setEnabled(false);
+					UpdateOrderButton.setEnabled(true);
 					try {
-						orderRemove.setEnabled(true);
+						RemoveOrderButton.setEnabled(true);
 						allOrderItems();
 						orderRetriview = true;
 						ResultSet productName = commonServices.searchAndSort("product", "productID", productID.getText().toString());
@@ -1480,16 +1591,12 @@ public class MainOrderInterface extends JFrame {
 		
 		produtTypeFill();
 		superviceNameID(role);
+		
+		form_Load_Client_Disable();
+		form_Load_Order_Disable();
+		
 		clearCustomerFields();
 		clearOrderFields();
-		clientRemoveButton.setEnabled(false);
-		clientUpdateButton.setEnabled(false);
-		
-		orderRemove.setEnabled(false);
-		orderUpdate.setEnabled(false);
-		placeOrderButton.setEnabled(false);
-		
-
 
 	}
 }
